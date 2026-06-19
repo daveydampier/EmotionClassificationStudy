@@ -1,0 +1,48 @@
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data & model artifacts (large; keep out of git)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+models/
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.ckpt
+
+# Caches / test
+.cache/
+.pytest_cache/
+.mypy_cache/
+*.log
+
+# Reproducibility lockfile is fine to commit; this ignores stray local freezes
+# (intentionally NOT ignoring requirements.lock.txt)
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment / secrets
+.env
+*.env

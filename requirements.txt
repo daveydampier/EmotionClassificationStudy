@@ -1,0 +1,39 @@
+# ---------------------------------------------------------------------------
+# Requirements for the Emotion Classification Study.
+#
+# Verified to resolve on Python 3.9–3.14 (cp314 wheels exist for the whole stack).
+# After the first successful install, pin exact versions:
+#     pip freeze > requirements.lock.txt
+#
+# GPU (NVIDIA/CUDA): the default `torch` wheel on Windows is CPU-only. For a CUDA
+# build, install torch separately from the PyTorch index, e.g.
+#     pip install torch --index-url https://download.pytorch.org/whl/cu124
+# See https://pytorch.org/get-started/locally/ for the command matching your CUDA.
+# ---------------------------------------------------------------------------
+
+# Core scientific stack
+numpy
+pandas
+scikit-learn          # classical tier (SVM / NB / RF) + most evaluation metrics
+
+# Deep-learning tier (PyTorch) — BiLSTM/CNN, and backs the HF transformers below
+torch
+
+# Transformer tier + dataset loading (HuggingFace)
+transformers          # BERT / RoBERTa fine-tuning
+datasets              # GoEmotions, SemEval-2018, BRIGHTER from the HF Hub
+accelerate            # required by the HF Trainer
+
+# Visualization (radar / Sankey / violin / Pareto scorecard plots)
+matplotlib
+seaborn
+
+# Notebooks
+jupyter
+ipykernel
+
+# Utilities
+tqdm
+
+# Testing
+pytest
