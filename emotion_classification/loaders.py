@@ -17,6 +17,15 @@ from dataclasses import dataclass
 
 from . import labels as L
 
+# HF dataset repo ids. datasets>=5 requires the full ``namespace/name`` form;
+# the old bare short names ("go_emotions") are rejected.
+GOEMOTIONS_REPO = "google-research-datasets/go_emotions"
+# The canonical SemEval repo is script-based, which datasets>=5 no longer
+# supports. This is a script-free (Parquet) ENGLISH mirror with columns
+# ``text`` + the 11 boolean emotion columns. NOTE: it is a community
+# re-upload ("cleaned_labels") — verify provenance before citing results.
+SEMEVAL2018_REPO = "vibhorag101/sem_eval_2018_task_1_english_cleaned_labels"
+
 
 @dataclass
 class Example:
@@ -57,7 +66,7 @@ def load_goemotions(config: str = "simplified") -> EmotionDataset:
         )
     from datasets import load_dataset
 
-    ds = load_dataset("go_emotions", config)
+    ds = load_dataset(GOEMOTIONS_REPO, config)
     splits = {
         split: [
             Example(text=row["text"], labels=[L.GOEMOTIONS[i] for i in row["labels"]])
@@ -71,16 +80,23 @@ def load_goemotions(config: str = "simplified") -> EmotionDataset:
 def load_semeval2018(language: str = "english") -> EmotionDataset:
     """SemEval-2018 Task 1 E-c (Mohammad et al.) — 11 labels, multi-label tweets.
 
-    Uses HF ``sem_eval_2018_task_1`` config ``subtask5.<language>`` (english,
-    spanish, arabic). The text column is ``Tweet`` and each of the 11 emotions
+    English only, from the script-free Parquet mirror :data:`SEMEVAL2018_REPO`
+    (the official repo uses a loading script that ``datasets`` >= 5 no longer
+    supports). The mirror is a community re-upload — verify its provenance before
+    citing results. The ``text`` column holds the tweet; each of the 11 emotions
     is a boolean column.
     """
+    if language != "english":
+        raise NotImplementedError(
+            f"Only English is available from {SEMEVAL2018_REPO!r}; got "
+            f"language={language!r}."
+        )
     from datasets import load_dataset
 
-    ds = load_dataset("sem_eval_2018_task_1", f"subtask5.{language}")
+    ds = load_dataset(SEMEVAL2018_REPO)
     splits = {
         split: [
-            Example(text=row["Tweet"], labels=[e for e in L.SEMEVAL2018 if row.get(e)])
+            Example(text=row["text"], labels=[e for e in L.SEMEVAL2018 if row.get(e)])
             for row in ds[split]
         ]
         for split in ds

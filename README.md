@@ -28,17 +28,24 @@ models use **scikit-learn**.
 
 ## Setup
 
+> ⚠️ **This repo lives in a OneDrive-synced folder.** OneDrive's Files-On-Demand
+> reparse points break `python -m venv` *inside* the repo, and you wouldn't want a
+> multi-GB venv syncing to the cloud anyway. Create the venv **outside** OneDrive.
+
 ```bash
-# 1. Create a virtual environment
-python -m venv .venv
+# 1. Create a virtual environment OUTSIDE OneDrive
+#    Git Bash:
+python -m venv "$HOME/venvs/EmotionClassificationStudy"
+#    PowerShell:
+#    python -m venv $env:USERPROFILE\venvs\EmotionClassificationStudy
 
 # 2. Activate it
 #    PowerShell:
-.venv\Scripts\Activate.ps1
+& $env:USERPROFILE\venvs\EmotionClassificationStudy\Scripts\Activate.ps1
 #    Git Bash:
-source .venv/Scripts/activate
+source "$HOME/venvs/EmotionClassificationStudy/Scripts/activate"
 
-# 3. Install dependencies
+# 3. Install dependencies (run from the repo root)
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 
@@ -48,6 +55,9 @@ pip install -r requirements.txt
 # 4. Verify the environment (library versions + GPU visibility)
 python scripts/check_env.py
 ```
+
+> Optional: enabling Windows **Developer Mode** lets the HuggingFace cache use
+> symlinks (more disk-efficient); without it, downloads still work but are copied.
 
 After a successful install, freeze exact versions for reproducibility:
 
@@ -74,6 +84,7 @@ EmotionClassificationStudy/
 │   └── check_env.py          # environment / GPU sanity check
 ├── tests/                    # pytest suite
 ├── requirements.txt
+├── pytest.ini
 ├── .gitignore
 └── README.md
 ```
@@ -89,13 +100,20 @@ EmotionClassificationStudy/
 | Transformer | PyTorch + HuggingFace | BERT, RoBERTa (fine-tuned) |
 | LLM (optional) | API | prompted GPT / Claude / Gemini |
 
-## Planned datasets
+## Datasets
 
-| Dataset | Role | Notes |
-|---|---|---|
-| **GoEmotions** (27 + neutral) | Anchor | Reddit; ships per-rater labels (human–human κ ceiling) |
-| **SemEval-2025 / BRIGHTER** | Cross-lingual transfer target | 32 languages |
-| **SemEval-2018 Task 1 E-c** (11, multi-label) | Co-occurrence analysis | Tweets |
+Loaders live in `emotion_classification/loaders.py` and normalize each source to a
+common `(text, labels)` form; `labels.py` projects labels into a shared schema.
 
-A **label-harmonization map** (GoEmotions 27 → Ekman 6 → SemEval labels) is the next
-artifact to build before any cross-dataset experiment can run.
+| Dataset | Role | HF source | Status |
+|---|---|---|---|
+| **GoEmotions** (27 + neutral) | Anchor | `google-research-datasets/go_emotions` (`simplified`) | ✅ loader works |
+| **SemEval-2018 Task 1 E-c** (11, multi-label) | Co-occurrence analysis | `vibhorag101/sem_eval_2018_task_1_english_cleaned_labels` ⚠️ community mirror, English-only | ✅ loader works |
+| **SemEval-2025 / BRIGHTER** | Cross-lingual transfer target | _TBD — confirm HF path_ | ⏳ stubbed |
+
+> Note: the official `sem_eval_2018_task_1` repo is script-based and unsupported by
+> `datasets` >= 5, so we use a script-free Parquet mirror. Verify its provenance
+> before citing results, or substitute the official data.
+
+The **label-harmonization map** (GoEmotions 27 → Ekman 6 / sentiment; SemEval-2018 11
+→ Ekman 6) is implemented in `labels.py` and tested in `tests/test_labels.py`.
