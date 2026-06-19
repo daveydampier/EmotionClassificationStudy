@@ -28,24 +28,17 @@ models use **scikit-learn**.
 
 ## Setup
 
-> ⚠️ **This repo lives in a OneDrive-synced folder.** OneDrive's Files-On-Demand
-> reparse points break `python -m venv` *inside* the repo, and you wouldn't want a
-> multi-GB venv syncing to the cloud anyway. Create the venv **outside** OneDrive.
-
 ```bash
-# 1. Create a virtual environment OUTSIDE OneDrive
-#    Git Bash:
-python -m venv "$HOME/venvs/EmotionClassificationStudy"
-#    PowerShell:
-#    python -m venv $env:USERPROFILE\venvs\EmotionClassificationStudy
+# 1. Create a virtual environment
+python -m venv .venv
 
 # 2. Activate it
 #    PowerShell:
-& $env:USERPROFILE\venvs\EmotionClassificationStudy\Scripts\Activate.ps1
+.venv\Scripts\Activate.ps1
 #    Git Bash:
-source "$HOME/venvs/EmotionClassificationStudy/Scripts/activate"
+source .venv/Scripts/activate
 
-# 3. Install dependencies (run from the repo root)
+# 3. Install dependencies
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 
