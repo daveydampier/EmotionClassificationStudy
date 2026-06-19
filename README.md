@@ -63,7 +63,9 @@ pip freeze > requirements.lock.txt
 EmotionClassificationStudy/
 ├── emotion_classification/   # main package
 │   ├── __init__.py
-│   └── config.py             # canonical project paths
+│   ├── config.py             # canonical project paths
+│   ├── labels.py             # label schemas + cross-dataset harmonization
+│   └── loaders.py            # normalized dataset loaders (GoEmotions, SemEval)
 ├── data/
 │   ├── raw/                  # downloaded datasets (git-ignored)
 │   └── processed/            # cleaned / harmonized data (git-ignored)
