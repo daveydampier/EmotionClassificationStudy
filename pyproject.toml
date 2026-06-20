@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "emotion-classification-study"
+version = "0.1.0"
+description = "Text emotion classification across accuracy and real-world deployment dimensions."
+readme = "README.md"
+requires-python = ">=3.9,<3.15"
+license = { text = "MIT" }
+authors = [{ name = "David Dampier" }]
+
+# Core, always-needed stack. The heavy deep-learning / transformer / notebook
+# extras are optional so the metrics + classical tiers install light.
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+deep = ["torch"]
+transformers = ["torch", "transformers", "datasets", "accelerate"]
+viz = ["matplotlib", "seaborn"]
+notebooks = ["jupyter", "ipykernel"]
+dev = ["pytest"]
+# The full stack. Note: `jupyter` pulls JupyterLab, whose deeply-nested extension
+# files can trip the Windows 260-char path limit — enable long paths (see README)
+# or install without the `notebooks` extra (e.g. ".[transformers,viz,dev]").
+all = [
+    "torch", "transformers", "datasets", "accelerate",
+    "matplotlib", "seaborn", "jupyter", "ipykernel", "pytest",
+]
+
+[tool.setuptools.packages.find]
+include = ["emotion_classification*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "network: test downloads data from the HuggingFace Hub (needs internet; deselect with -m 'not network')",
+    "slow: test trains a model and may take a while (deselect with -m 'not slow')",
+]

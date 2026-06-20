@@ -5,9 +5,10 @@ list of :class:`Example`, where ``labels`` is a list of the dataset's *native*
 label names (multi-label friendly). Project those names into a shared schema
 (e.g. Ekman-6) with :mod:`emotion_classification.labels`.
 
-These loaders require the optional ``datasets`` (HuggingFace) dependency from
-requirements.txt and hit the network on first use (results cached under the HF
-cache dir). They are intentionally import-light: ``datasets`` is imported lazily
+These loaders require the optional ``datasets`` (HuggingFace) dependency (the
+``transformers`` extra in pyproject.toml) and hit the network on first use
+(results cached under the HF cache dir). They are intentionally import-light:
+``datasets`` is imported lazily
 inside each function so this module imports without the dependency installed.
 """
 
