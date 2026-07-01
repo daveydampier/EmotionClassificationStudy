@@ -21,7 +21,9 @@ data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
-models/
+# Anchored to repo root so it only ignores the trained-artifacts dir, NOT the
+# `emotion_classification/models/` source package.
+/models/
 *.pt
 *.pth
 *.safetensors
