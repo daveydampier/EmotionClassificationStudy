@@ -96,3 +96,14 @@ def prepare_dataset(
         split: prepare_split(examples, label_names, projector, drop_empty=drop_empty)
         for split, examples in ds.splits.items()
     }
+
+
+def label_support(split: PreparedSplit) -> dict[str, int]:
+    """Class frequency: number of positive examples per label in a split.
+
+    This is the ``x``-axis of the study's central figure (per-emotion F1 vs. class
+    frequency), so it is computed straight from the multi-hot matrix that models
+    are trained/evaluated on, guaranteeing it matches the labels being scored.
+    """
+    counts = split.Y.sum(axis=0)
+    return {name: int(counts[i]) for i, name in enumerate(split.label_names)}

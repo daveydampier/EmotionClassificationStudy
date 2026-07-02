@@ -91,6 +91,54 @@ def expected_calibration_error(
     return float(ece)
 
 
+def per_label_metrics(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    label_names: "list[str]",
+    threshold: float = 0.5,
+) -> "dict[str, dict[str, float]]":
+    """Per-emotion precision, recall, F1, and support.
+
+    Returns ``{label: {"f1", "precision", "recall", "support"}}``. ``support`` is
+    the number of positive examples of that label in ``y_true`` (its class
+    frequency in the evaluation set). This is the backbone of the study's RQ3 —
+    whether per-emotion F1 degrades with rarity — so per-label F1 and support are
+    reported together.
+    """
+    y_true_i = _as_2d_float(y_true).astype(np.int64)
+    y_pred = binarize(y_prob, threshold)
+    if y_true_i.shape[1] != len(label_names):
+        raise ValueError(
+            f"label_names has {len(label_names)} entries but y_true has "
+            f"{y_true_i.shape[1]} columns"
+        )
+
+    f1s = f1_score(y_true_i, y_pred, average=None, zero_division=0)
+    ps = precision_score(y_true_i, y_pred, average=None, zero_division=0)
+    rs = recall_score(y_true_i, y_pred, average=None, zero_division=0)
+    support = y_true_i.sum(axis=0)
+
+    return {
+        name: {
+            "f1": float(f1s[i]),
+            "precision": float(ps[i]),
+            "recall": float(rs[i]),
+            "support": int(support[i]),
+        }
+        for i, name in enumerate(label_names)
+    }
+
+
+def per_label_f1(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    label_names: "list[str]",
+    threshold: float = 0.5,
+) -> "dict[str, float]":
+    """Per-emotion F1 only, as ``{label: f1}`` (convenience over :func:`per_label_metrics`)."""
+    return {k: v["f1"] for k, v in per_label_metrics(y_true, y_prob, label_names, threshold).items()}
+
+
 def evaluate(
     y_true: np.ndarray, y_prob: np.ndarray, threshold: float = 0.5, n_bins: int = 10
 ) -> dict[str, float]:

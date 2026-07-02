@@ -3,7 +3,15 @@
 import numpy as np
 
 from emotion_classification.loaders import Example
-from emotion_classification.preprocessing import prepare_split, to_multihot
+from emotion_classification.preprocessing import (
+    PreparedSplit, label_support, prepare_split, to_multihot,
+)
+
+
+def test_label_support_counts_positives_per_label():
+    Y = np.array([[1, 0, 1], [0, 0, 1]], dtype=np.float32)
+    split = PreparedSplit(["a", "b"], Y, ["x", "y", "z"])
+    assert label_support(split) == {"x": 1, "y": 0, "z": 2}
 
 
 def test_to_multihot_basic():

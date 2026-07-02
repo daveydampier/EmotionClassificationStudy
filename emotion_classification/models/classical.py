@@ -1,15 +1,20 @@
-"""Classical tier: TF-IDF features + linear classifiers (scikit-learn).
+"""Classical tier: Bag-of-Words / TF-IDF features + scikit-learn classifiers.
 
-These are the study's **reference implementation** — cheap to train, strong
-baselines, and the first end-to-end path through the scorecard. Two variants:
+These are the study's **lightweight tier** — cheap to train, small on disk, and the
+efficiency anchors the "cost of going lightweight" comparison is built around. Four
+model families, each selectable over either feature backend (``features="tfidf"`` or
+``features="bow"``):
 
-* :class:`TfidfLogReg`   — logistic regression, native ``predict_proba``.
-* :class:`TfidfLinearSVM` — linear SVM, probabilities via sigmoid calibration.
+* :class:`NaiveBayes`    — Multinomial NB (the lightweight extreme).
+* :class:`LogisticReg`   — logistic regression, native ``predict_proba``.
+* :class:`LinearSVM`     — linear SVM, probabilities via sigmoid calibration.
+* :class:`RandomForest`  — random forest (the heaviest classical option).
 
-Both wrap a shared, robust per-label binary-relevance head (see
-:class:`_BinaryRelevance`) that tolerates label columns with no positive (or no
-negative) training examples — handy when a harmonized schema leaves a rare
-emotion empty in some split.
+All share a robust per-label binary-relevance head (:class:`_BinaryRelevance`) that
+tolerates label columns with no positive (or no negative) training examples — common
+in the fine-grained 27-class schema where rare emotions may be absent from a split.
+Each model's ``name`` encodes the feature backend (e.g. ``naive_bayes_bow``) so the
+scorecard distinguishes BoW from TF-IDF runs.
 """
 
 from __future__ import annotations
@@ -20,11 +25,27 @@ import pickle
 import numpy as np
 from sklearn.base import clone
 from sklearn.calibration import CalibratedClassifierCV
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import ComplementNB
 from sklearn.svm import LinearSVC
 
 from .base import BaseEmotionModel
+
+
+def _make_vectorizer(features: str, max_features: int, ngram_range, min_df: int):
+    """Build the text vectorizer for the chosen feature backend."""
+    if features == "tfidf":
+        return TfidfVectorizer(
+            max_features=max_features, ngram_range=ngram_range,
+            min_df=min_df, sublinear_tf=True,
+        )
+    if features == "bow":
+        return CountVectorizer(
+            max_features=max_features, ngram_range=ngram_range, min_df=min_df,
+        )
+    raise ValueError(f"unknown features {features!r}; use 'tfidf' or 'bow'")
 
 
 class _BinaryRelevance:
@@ -63,16 +84,15 @@ class _BinaryRelevance:
         return np.column_stack(cols) if cols else np.zeros((n, 0))
 
 
-class _TfidfClassifier(BaseEmotionModel):
-    """Shared TF-IDF + binary-relevance plumbing for the classical variants."""
+class _VectorizedClassifier(BaseEmotionModel):
+    """Shared vectorizer + binary-relevance plumbing for the classical variants."""
 
-    def __init__(self, estimator, name: str, *, max_features: int = 50_000,
-                 ngram_range: tuple[int, int] = (1, 2), min_df: int = 2):
+    def __init__(self, estimator, name: str, *, features: str = "tfidf",
+                 max_features: int = 50_000, ngram_range: tuple[int, int] = (1, 2),
+                 min_df: int = 2):
         self.name = name
-        self.vectorizer = TfidfVectorizer(
-            max_features=max_features, ngram_range=ngram_range,
-            min_df=min_df, sublinear_tf=True,
-        )
+        self.features = features
+        self.vectorizer = _make_vectorizer(features, max_features, ngram_range, min_df)
         self.head = _BinaryRelevance(estimator)
 
     def fit(self, texts: list[str], Y: np.ndarray):
@@ -90,29 +110,70 @@ class _TfidfClassifier(BaseEmotionModel):
         return buf.tell() / (1024 * 1024)
 
 
-class TfidfLogReg(_TfidfClassifier):
-    """TF-IDF + per-label logistic regression."""
+class NaiveBayes(_VectorizedClassifier):
+    """Naive Bayes — the lightweight extreme (tiny, near-instant training).
 
-    def __init__(self, *, C: float = 1.0, max_iter: int = 1000, **tfidf):
+    Uses :class:`~sklearn.naive_bayes.ComplementNB` rather than plain
+    ``MultinomialNB``: Complement NB is designed for imbalanced text and, unlike
+    Multinomial NB, does not collapse to all-negative predictions under the
+    binary-relevance / 0.5-threshold setup on rare emotions.
+    """
+
+    def __init__(self, *, features: str = "tfidf", alpha: float = 1.0, **vec):
         super().__init__(
-            LogisticRegression(C=C, max_iter=max_iter, class_weight="balanced"),
-            name="tfidf_logreg",
-            **tfidf,
+            ComplementNB(alpha=alpha),
+            name=f"naive_bayes_{features}",
+            features=features,
+            **vec,
         )
 
 
-class TfidfLinearSVM(_TfidfClassifier):
-    """TF-IDF + per-label linear SVM, calibrated to emit probabilities.
+class LogisticReg(_VectorizedClassifier):
+    """Per-label logistic regression."""
+
+    def __init__(self, *, features: str = "tfidf", C: float = 1.0,
+                 max_iter: int = 1000, **vec):
+        super().__init__(
+            LogisticRegression(C=C, max_iter=max_iter, class_weight="balanced"),
+            name=f"logreg_{features}",
+            features=features,
+            **vec,
+        )
+
+
+class LinearSVM(_VectorizedClassifier):
+    """Per-label linear SVM, calibrated to emit probabilities.
 
     ``LinearSVC`` has no ``predict_proba``; :class:`~sklearn.calibration.
     CalibratedClassifierCV` wraps it with cross-validated Platt scaling so the
     calibration (ECE) axis is meaningful rather than a hard 0/1 stand-in.
     """
 
-    def __init__(self, *, C: float = 1.0, cv: int = 3, **tfidf):
+    def __init__(self, *, features: str = "tfidf", C: float = 1.0, cv: int = 3, **vec):
         base = LinearSVC(C=C, class_weight="balanced")
         super().__init__(
             CalibratedClassifierCV(base, cv=cv),
-            name="tfidf_linearsvm",
-            **tfidf,
+            name=f"linsvm_{features}",
+            features=features,
+            **vec,
+        )
+
+
+class RandomForest(_VectorizedClassifier):
+    """Per-label random forest — the heaviest classical option (bigger, slower).
+
+    Included partly to populate the middle of the size/training-time spectrum: it
+    shows that "classical" is not automatically "lightweight."
+    """
+
+    def __init__(self, *, features: str = "tfidf", n_estimators: int = 200,
+                 max_depth: "int | None" = None, n_jobs: int = -1, **vec):
+        super().__init__(
+            RandomForestClassifier(
+                n_estimators=n_estimators, max_depth=max_depth,
+                n_jobs=n_jobs, class_weight="balanced_subsample", random_state=0,
+            ),
+            name=f"random_forest_{features}",
+            features=features,
+            **vec,
         )

@@ -59,6 +59,18 @@ class ScorecardRow:
     model_size_mb: float = 0.0
     cost_usd: Optional[float] = None
 
+    # Hardware the timing/latency were measured on (fairness caveat: the
+    # lightweight tier runs on CPU, the transformer on GPU, so ``train_seconds``
+    # and ``predict_latency_ms`` are only comparable within the same device).
+    device: Optional[str] = None
+
+    # Per-emotion breakdown (backbone of RQ3). ``per_label_f1`` maps each label
+    # to its F1; ``per_label_support`` maps each label to its positive count in
+    # the evaluation set (its class frequency) — these two feed the core
+    # per-emotion-F1-vs-frequency figure.
+    per_label_f1: dict = field(default_factory=dict)
+    per_label_support: dict = field(default_factory=dict)
+
     # Free-form extras (hyperparameters, label schema, n_samples, …)
     meta: dict = field(default_factory=dict)
 

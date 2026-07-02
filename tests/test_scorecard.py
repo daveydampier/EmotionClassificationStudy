@@ -47,3 +47,20 @@ def test_markdown_has_header_and_rows():
     md = _card().to_markdown()
     assert "| model | dataset |" in md
     assert md.count("\n") >= 3  # header + separator + 2 rows
+
+
+def test_device_and_per_label_are_not_axes():
+    # New non-axis fields must not leak into normalization or the axis list.
+    card = Scorecard([
+        ScorecardRow(model="A", dataset="d", macro_f1=0.9, device="cpu",
+                     per_label_f1={"joy": 0.8}, per_label_support={"joy": 10}),
+        ScorecardRow(model="B", dataset="d", macro_f1=0.7, device="cuda:0",
+                     per_label_f1={"joy": 0.6}, per_label_support={"joy": 10}),
+    ])
+    axes = card.axes()
+    assert "device" not in axes and "per_label_f1" not in axes
+    norm = card.normalized()
+    assert all("device" not in r for r in norm)
+    # as_dict still carries the new fields for persistence
+    assert card.rows[0].as_dict()["device"] == "cpu"
+    assert card.rows[0].as_dict()["per_label_f1"] == {"joy": 0.8}

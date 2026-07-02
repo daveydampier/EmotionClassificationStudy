@@ -22,12 +22,34 @@ from typing import Optional
 
 import numpy as np
 
-from .metrics import evaluate
+from .metrics import evaluate, per_label_metrics
 from .models.base import EmotionModel
 from .preprocessing import PreparedSplit
 from .scorecard import ScorecardRow
 
 DEFAULT_SEED = 42
+
+
+def _detect_device(model) -> str:
+    """Report the hardware a model ran on ('cpu' or e.g. 'cuda:0').
+
+    Classical (scikit-learn) models have no torch module and run on CPU. Torch
+    models expose their fitted network as ``module_`` (deep tier) or ``model_``
+    (transformer tier); we read the device of its parameters. Recorded per run so
+    the training-time / latency fairness caveat is visible in the results.
+    """
+    if importlib.util.find_spec("torch") is None:
+        return "cpu"
+    import torch
+
+    for attr in ("module_", "model_"):
+        module = getattr(model, attr, None)
+        if isinstance(module, torch.nn.Module):
+            try:
+                return str(next(module.parameters()).device)
+            except StopIteration:
+                pass
+    return "cpu"
 
 
 def set_seed(seed: int = DEFAULT_SEED) -> None:
@@ -68,6 +90,9 @@ def run_experiment(
     latency_ms = (predict_seconds / max(len(test), 1)) * 1000.0
 
     scores = evaluate(test.Y, y_prob, threshold=threshold)
+    per_label = per_label_metrics(test.Y, y_prob, test.label_names, threshold)
+    per_label_f1 = {name: m["f1"] for name, m in per_label.items()}
+    per_label_support = {name: m["support"] for name, m in per_label.items()}
 
     meta = {
         "n_train": len(train),
@@ -91,5 +116,8 @@ def run_experiment(
         predict_latency_ms=latency_ms,
         model_size_mb=model.size_mb(),
         cost_usd=cost_usd,
+        device=_detect_device(model),
+        per_label_f1=per_label_f1,
+        per_label_support=per_label_support,
         meta=meta,
     )

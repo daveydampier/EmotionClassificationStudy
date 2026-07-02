@@ -1,6 +1,7 @@
 """Tests for the metrics contract (numpy + sklearn only)."""
 
 import numpy as np
+import pytest
 
 from emotion_classification import metrics as M
 
@@ -46,3 +47,28 @@ def test_evaluate_bundles_all_axes():
     y_prob = np.array([[0.8, 0.2, 0.7]])
     s = M.evaluate(y_true, y_prob)
     assert {"macro_f1", "micro_f1", "subset_accuracy", "ece"} <= set(s)
+
+
+def test_per_label_f1_keys_and_perfect():
+    y_true = np.array([[1, 0], [0, 1]], dtype=float)
+    y_prob = y_true.copy()
+    d = M.per_label_f1(y_true, y_prob, ["joy", "anger"])
+    assert set(d) == {"joy", "anger"}
+    assert d["joy"] == 1.0 and d["anger"] == 1.0
+
+
+def test_per_label_metrics_support_and_zero_f1():
+    # column 'a' has 2 positives, 'b' has 2; predictions are all-zero -> F1 = 0.
+    y_true = np.array([[1, 0], [1, 1], [0, 1]], dtype=float)
+    y_prob = np.zeros((3, 2))
+    m = M.per_label_metrics(y_true, y_prob, ["a", "b"])
+    assert m["a"]["support"] == 2
+    assert m["b"]["support"] == 2
+    assert m["a"]["f1"] == 0.0 and m["b"]["f1"] == 0.0
+
+
+def test_per_label_metrics_length_mismatch_raises():
+    y_true = np.array([[1, 0, 1]], dtype=float)
+    y_prob = np.array([[0.9, 0.1, 0.8]])
+    with pytest.raises(ValueError):
+        M.per_label_metrics(y_true, y_prob, ["only", "two"])
