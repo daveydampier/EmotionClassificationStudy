@@ -167,11 +167,16 @@ class RandomForest(_VectorizedClassifier):
     """
 
     def __init__(self, *, features: str = "tfidf", n_estimators: int = 200,
-                 max_depth: "int | None" = None, n_jobs: int = -1, **vec):
+                 max_depth: "int | None" = None, n_jobs: int = -1,
+                 random_state=None, **vec):
+        # random_state=None (the default) makes the forest draw from the global
+        # NumPy RNG, which the experiment runner seeds per run — so Random Forest
+        # is reproducible for a given seed *and* varies across seeds (unlike the
+        # deterministic NB/LogReg/SVM), giving it real multi-seed error bars.
         super().__init__(
             RandomForestClassifier(
-                n_estimators=n_estimators, max_depth=max_depth,
-                n_jobs=n_jobs, class_weight="balanced_subsample", random_state=0,
+                n_estimators=n_estimators, max_depth=max_depth, n_jobs=n_jobs,
+                class_weight="balanced_subsample", random_state=random_state,
             ),
             name=f"random_forest_{features}",
             features=features,

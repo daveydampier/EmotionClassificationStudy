@@ -3,7 +3,11 @@
 import csv
 import json
 
-from emotion_classification.results import load_results, save_results
+import pytest
+
+from emotion_classification.results import (
+    load_results, save_results, save_summary, summarize,
+)
 from emotion_classification.scorecard import Scorecard, ScorecardRow
 
 
@@ -57,6 +61,45 @@ def test_per_emotion_long_format(tmp_path):
     assert set(by_emotion) == {"joy", "grief"}
     assert by_emotion["grief"]["support"] == "6"
     assert by_emotion["joy"]["schema"] == "native"
+    assert by_emotion["joy"]["seed"] == "42"   # seed column distinguishes multi-seed rows
+
+
+def _multiseed_card():
+    # same model config, two seeds; macro_f1 differs, size identical.
+    return Scorecard([
+        ScorecardRow(model="logreg_tfidf", dataset="go_emotions", macro_f1=0.40,
+                     train_seconds=8.0, model_size_mb=12.0,
+                     meta={"schema": "native", "features": "tfidf", "seed": 42}),
+        ScorecardRow(model="logreg_tfidf", dataset="go_emotions", macro_f1=0.44,
+                     train_seconds=9.0, model_size_mb=12.0,
+                     meta={"schema": "native", "features": "tfidf", "seed": 43}),
+    ])
+
+
+def test_summarize_aggregates_seeds():
+    summaries = summarize(_multiseed_card())
+    assert len(summaries) == 1          # two seeds collapse to one model line
+    row = summaries[0]
+    assert row["n_seeds"] == 2
+    assert row["macro_f1_mean"] == pytest.approx(0.42)   # mean of 0.40, 0.44
+    assert row["macro_f1_std"] > 0                        # values differ
+    assert row["model_size_mb_std"] == 0.0       # identical -> zero std
+
+
+def test_summarize_accepts_row_dicts(tmp_path):
+    # round-trip through JSON (dicts) still summarizes
+    paths = save_results(_multiseed_card(), tmp_path, "ms")
+    summaries = summarize(load_results(paths["json"]))
+    assert summaries[0]["n_seeds"] == 2
+
+
+def test_save_summary_writes_csv(tmp_path):
+    path = save_summary(_multiseed_card(), tmp_path, "run1")
+    with path.open(encoding="utf-8") as fh:
+        rec = next(csv.DictReader(fh))
+    assert rec["model"] == "logreg_tfidf"
+    assert rec["n_seeds"] == "2"
+    assert "macro_f1_mean" in rec and "macro_f1_std" in rec
 
 
 def test_save_results_creates_missing_dir(tmp_path):

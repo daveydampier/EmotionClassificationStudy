@@ -19,9 +19,10 @@ from __future__ import annotations
 
 import csv
 import json
+import statistics
 from pathlib import Path
 
-from .scorecard import Scorecard
+from .scorecard import HIGHER_IS_BETTER, Scorecard
 
 # Flat headline columns for the scorecard CSV; meta-derived ones are pulled from
 # each row's ``meta`` dict.
@@ -59,18 +60,80 @@ def save_results(card: Scorecard, out_dir: str | Path, name: str = "run") -> dic
                 record[k] = meta.get(k)
             writer.writerow(record)
 
-    # 3. Long per-emotion CSV.
+    # 3. Long per-emotion CSV (one row per model x seed x emotion).
     with per_emotion_path.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
-        writer.writerow(["model", "dataset", "schema", "emotion", "f1", "support"])
+        writer.writerow(["model", "dataset", "schema", "seed", "emotion", "f1", "support"])
         for r in rows:
-            schema = (r.get("meta") or {}).get("schema")
+            meta = r.get("meta") or {}
+            schema, seed = meta.get("schema"), meta.get("seed")
             support = r.get("per_label_support") or {}
             for emotion, f1 in (r.get("per_label_f1") or {}).items():
-                writer.writerow([r["model"], r["dataset"], schema, emotion,
+                writer.writerow([r["model"], r["dataset"], schema, seed, emotion,
                                  f1, support.get(emotion)])
 
     return {"json": json_path, "scorecard": scorecard_path, "per_emotion": per_emotion_path}
+
+
+def summarize(card) -> list[dict]:
+    """Aggregate per-seed rows to mean/std per axis, grouped by model config.
+
+    Accepts a :class:`Scorecard`, a list of :class:`ScorecardRow`, or a list of
+    row dicts (e.g. from :func:`load_results`). Rows are grouped by
+    ``(model, dataset, schema, features)`` so a multi-seed run collapses to one
+    summary line per model with ``<axis>_mean`` / ``<axis>_std`` (sample std;
+    0.0 for a single seed).
+    """
+    if isinstance(card, Scorecard):
+        rows = [r.as_dict() for r in card.rows]
+    else:
+        rows = [r.as_dict() if hasattr(r, "as_dict") else r for r in card]
+
+    groups: dict[tuple, list[dict]] = {}
+    order: list[tuple] = []
+    for r in rows:
+        meta = r.get("meta") or {}
+        key = (r["model"], r["dataset"], meta.get("schema"), meta.get("features"))
+        if key not in groups:
+            groups[key] = []
+            order.append(key)
+        groups[key].append(r)
+
+    summaries = []
+    for key in order:
+        model, dataset, schema, features = key
+        grp = groups[key]
+        summary = {"model": model, "dataset": dataset, "schema": schema,
+                   "features": features, "n_seeds": len(grp)}
+        for axis in HIGHER_IS_BETTER:
+            vals = [r.get(axis) for r in grp if r.get(axis) is not None]
+            if not vals:
+                continue
+            summary[f"{axis}_mean"] = statistics.fmean(vals)
+            summary[f"{axis}_std"] = statistics.stdev(vals) if len(vals) > 1 else 0.0
+        summaries.append(summary)
+    return summaries
+
+
+def save_summary(card, out_dir: str | Path, name: str = "run") -> Path:
+    """Write the multi-seed :func:`summarize` table to ``<name>_summary.csv``."""
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    summaries = summarize(card)
+
+    axis_cols: list[str] = []
+    for axis in HIGHER_IS_BETTER:
+        if any(f"{axis}_mean" in s for s in summaries):
+            axis_cols += [f"{axis}_mean", f"{axis}_std"]
+    fields = ["model", "dataset", "schema", "features", "n_seeds", *axis_cols]
+
+    path = out / f"{name}_summary.csv"
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.DictWriter(fh, fieldnames=fields, extrasaction="ignore")
+        writer.writeheader()
+        for s in summaries:
+            writer.writerow(s)
+    return path
 
 
 def load_results(json_path: str | Path) -> list[dict]:

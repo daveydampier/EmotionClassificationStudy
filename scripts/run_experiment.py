@@ -30,7 +30,7 @@ from emotion_classification import labels as L
 from emotion_classification.experiment import run_experiment
 from emotion_classification.loaders import LOADERS
 from emotion_classification.preprocessing import prepare_dataset
-from emotion_classification.results import save_results
+from emotion_classification.results import save_results, save_summary, summarize
 from emotion_classification.scorecard import Scorecard
 
 # Classical-tier model short names -> class names in models.classical.
@@ -103,6 +103,9 @@ def main() -> int:
                         help="cap training rows (speeds up smoke runs)")
     parser.add_argument("--limit-test", type=int, default=None)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--seeds", nargs="+", type=int, default=None,
+                        help="run each model across these seeds and report mean±std "
+                             "(overrides --seed; e.g. --seeds 42 43 44 45 46)")
     parser.add_argument("--out-dir", default="results",
                         help="directory for persisted results (default: results/)")
     parser.add_argument("--run-name", default=None,
@@ -126,21 +129,35 @@ def main() -> int:
 
     print(f"  train={len(train)}  test={len(test)}  n_labels={len(label_names)}")
 
+    seeds = args.seeds if args.seeds else [args.seed]
+    multiseed = len(seeds) > 1
+
     card = Scorecard()
     for name in args.models:
         print(f"\n=== {name} ===")
-        model = build_model(name, args.features)
-        row = run_experiment(model, train, test, dataset_name=args.dataset, seed=args.seed,
-                             extra_meta={"schema": args.schema, "features": args.features})
-        card.add(row)
-        print(f"  macro_f1={row.macro_f1:.3f}  micro_f1={row.micro_f1:.3f}  "
-              f"ece={row.ece:.3f}  train={row.train_seconds:.1f}s  "
-              f"latency={row.predict_latency_ms:.2f}ms  size={row.model_size_mb:.1f}MB  "
-              f"device={row.device}")
+        for seed in seeds:
+            model = build_model(name, args.features)  # fresh instance per seed
+            row = run_experiment(model, train, test, dataset_name=args.dataset, seed=seed,
+                                 extra_meta={"schema": args.schema, "features": args.features})
+            card.add(row)
+            tag = f"[seed {seed}] " if multiseed else ""
+            print(f"  {tag}macro_f1={row.macro_f1:.3f}  micro_f1={row.micro_f1:.3f}  "
+                  f"ece={row.ece:.3f}  train={row.train_seconds:.1f}s  "
+                  f"latency={row.predict_latency_ms:.2f}ms  size={row.model_size_mb:.1f}MB  "
+                  f"device={row.device}")
 
     print("\n## Raw scorecard\n")
     print(card.to_markdown())
-    if len(card) > 1:
+
+    if multiseed:
+        print(f"\n## Multi-seed summary (mean +/- std over {len(seeds)} seeds)\n")
+        for s in summarize(card):
+            print(f"  {s['model']}:  "
+                  f"macro_f1={s['macro_f1_mean']:.3f}+/-{s['macro_f1_std']:.3f}  "
+                  f"micro_f1={s['micro_f1_mean']:.3f}+/-{s['micro_f1_std']:.3f}  "
+                  f"train={s['train_seconds_mean']:.1f}+/-{s['train_seconds_std']:.1f}s  "
+                  f"size={s['model_size_mb_mean']:.1f}MB")
+    elif len(card) > 1:
         print("\n## Normalized (1 = best per axis)\n")
         norm = card.normalized()
         axes = card.axes()
@@ -153,6 +170,8 @@ def main() -> int:
     if not args.no_save:
         run_name = args.run_name or f"{args.dataset}_{args.schema}_{args.features}"
         paths = save_results(card, args.out_dir, run_name)
+        if multiseed:
+            paths["summary"] = save_summary(card, args.out_dir, run_name)
         print("\nSaved results:")
         for kind, path in paths.items():
             print(f"  {kind:<11} {path}")
