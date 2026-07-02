@@ -24,6 +24,8 @@ data/processed/*
 # Anchored to repo root so it only ignores the trained-artifacts dir, NOT the
 # `emotion_classification/models/` source package.
 /models/
+# Persisted experiment outputs (scorecard CSV/JSON); regenerate via run_experiment.
+/results/
 *.pt
 *.pth
 *.safetensors
