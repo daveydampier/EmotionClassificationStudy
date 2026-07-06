@@ -22,7 +22,9 @@ from typing import Optional
 
 import numpy as np
 
-from .metrics import evaluate, per_label_metrics
+from .metrics import (
+    bootstrap_f1_ci, bootstrap_per_label_f1_ci, evaluate, per_label_metrics,
+)
 from .models.base import EmotionModel
 from .preprocessing import PreparedSplit
 from .scorecard import ScorecardRow
@@ -75,9 +77,14 @@ def run_experiment(
     threshold: float = 0.5,
     seed: int = DEFAULT_SEED,
     cost_usd: Optional[float] = None,
+    bootstrap: int = 0,
     extra_meta: Optional[dict] = None,
 ) -> ScorecardRow:
-    """Train ``model`` on ``train``, evaluate on ``test``, return a scorecard row."""
+    """Train ``model`` on ``train``, evaluate on ``test``, return a scorecard row.
+
+    ``bootstrap`` (default 0 = off): number of bootstrap resamples for test-set
+    confidence intervals on macro/micro-F1 and per-label F1.
+    """
     set_seed(seed)
 
     t0 = time.perf_counter()
@@ -94,6 +101,19 @@ def run_experiment(
     per_label = per_label_metrics(test.Y, y_prob, test.label_names, threshold)
     per_label_f1 = {name: m["f1"] for name, m in per_label.items()}
     per_label_support = {name: m["support"] for name, m in per_label.items()}
+
+    macro_f1_ci = micro_f1_ci = None
+    per_label_f1_ci: dict = {}
+    if bootstrap:
+        agg = bootstrap_f1_ci(test.Y, y_prob, threshold, n_boot=bootstrap, seed=seed)
+        macro_f1_ci = list(agg["macro"])
+        micro_f1_ci = list(agg["micro"])
+        per_label_f1_ci = {
+            name: list(bounds)
+            for name, bounds in bootstrap_per_label_f1_ci(
+                test.Y, y_prob, test.label_names, threshold, n_boot=bootstrap, seed=seed
+            ).items()
+        }
 
     meta = {
         "n_train": len(train),
@@ -121,5 +141,8 @@ def run_experiment(
         device=_detect_device(model),
         per_label_f1=per_label_f1,
         per_label_support=per_label_support,
+        macro_f1_ci=macro_f1_ci,
+        micro_f1_ci=micro_f1_ci,
+        per_label_f1_ci=per_label_f1_ci,
         meta=meta,
     )

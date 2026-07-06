@@ -103,6 +103,23 @@ def test_save_summary_writes_csv(tmp_path):
     assert "macro_f1_mean" in rec and "macro_f1_std" in rec
 
 
+def test_bootstrap_cis_persisted(tmp_path):
+    card = Scorecard([ScorecardRow(
+        model="m", dataset="d", macro_f1=0.45, micro_f1=0.55,
+        macro_f1_ci=[0.43, 0.47], micro_f1_ci=[0.53, 0.57],
+        per_label_f1={"joy": 0.8}, per_label_support={"joy": 100},
+        per_label_f1_ci={"joy": [0.75, 0.85]},
+        meta={"schema": "native", "seed": 42},
+    )])
+    paths = save_results(card, tmp_path, "ci")
+    with paths["scorecard"].open(encoding="utf-8") as fh:
+        rec = next(csv.DictReader(fh))
+    assert rec["macro_f1_low"] == "0.43" and rec["macro_f1_high"] == "0.47"
+    with paths["per_emotion"].open(encoding="utf-8") as fh:
+        pe = next(csv.DictReader(fh))
+    assert pe["f1_low"] == "0.75" and pe["f1_high"] == "0.85"
+
+
 def test_save_results_creates_missing_dir(tmp_path):
     target = tmp_path / "nested" / "results"
     paths = save_results(_card(), target, "run1")

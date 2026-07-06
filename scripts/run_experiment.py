@@ -111,6 +111,9 @@ def main() -> int:
     parser.add_argument("--run-name", default=None,
                         help="basename for saved files (default: <dataset>_<schema>_<features>)")
     parser.add_argument("--no-save", action="store_true", help="skip writing results to disk")
+    parser.add_argument("--bootstrap", type=int, default=0,
+                        help="bootstrap resamples for test-set F1 confidence intervals "
+                             "(0 = off; e.g. 1000). Adds macro/micro + per-emotion CIs.")
     args = parser.parse_args()
 
     print(f"Loading {args.dataset} (schema={args.schema}, features={args.features}) ...")
@@ -138,6 +141,7 @@ def main() -> int:
         for seed in seeds:
             model = build_model(name, args.features)  # fresh instance per seed
             row = run_experiment(model, train, test, dataset_name=args.dataset, seed=seed,
+                                 bootstrap=args.bootstrap,
                                  extra_meta={"schema": args.schema, "features": args.features})
             card.add(row)
             tag = f"[seed {seed}] " if multiseed else ""

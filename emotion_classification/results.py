@@ -28,7 +28,9 @@ from .scorecard import HIGHER_IS_BETTER, Scorecard
 # each row's ``meta`` dict.
 _SCORECARD_FIELDS = [
     "model", "dataset", "schema", "features", "device",
-    "macro_f1", "micro_f1", "subset_accuracy", "ece",
+    "macro_f1", "macro_f1_low", "macro_f1_high",
+    "micro_f1", "micro_f1_low", "micro_f1_high",
+    "subset_accuracy", "ece",
     "train_seconds", "predict_latency_ms", "throughput", "model_size_mb", "cost_usd",
     "n_train", "n_test", "n_labels", "seed",
 ]
@@ -58,19 +60,28 @@ def save_results(card: Scorecard, out_dir: str | Path, name: str = "run") -> dic
             record = {k: r.get(k) for k in _SCORECARD_FIELDS}
             for k in _META_FIELDS:
                 record[k] = meta.get(k)
+            for prefix, cikey in (("macro_f1", "macro_f1_ci"), ("micro_f1", "micro_f1_ci")):
+                ci = r.get(cikey)
+                record[f"{prefix}_low"] = ci[0] if ci else None
+                record[f"{prefix}_high"] = ci[1] if ci else None
             writer.writerow(record)
 
     # 3. Long per-emotion CSV (one row per model x seed x emotion).
     with per_emotion_path.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
-        writer.writerow(["model", "dataset", "schema", "seed", "emotion", "f1", "support"])
+        writer.writerow(["model", "dataset", "schema", "seed", "emotion",
+                         "f1", "f1_low", "f1_high", "support"])
         for r in rows:
             meta = r.get("meta") or {}
             schema, seed = meta.get("schema"), meta.get("seed")
             support = r.get("per_label_support") or {}
+            ci = r.get("per_label_f1_ci") or {}
             for emotion, f1 in (r.get("per_label_f1") or {}).items():
+                bounds = ci.get(emotion)
+                lo = bounds[0] if bounds else ""
+                hi = bounds[1] if bounds else ""
                 writer.writerow([r["model"], r["dataset"], schema, seed, emotion,
-                                 f1, support.get(emotion)])
+                                 f1, lo, hi, support.get(emotion)])
 
     return {"json": json_path, "scorecard": scorecard_path, "per_emotion": per_emotion_path}
 

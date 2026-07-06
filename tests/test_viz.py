@@ -91,3 +91,11 @@ def test_f1_vs_frequency_drops_zero_support():
                        "f1": 0.0, "support": 0}
     fig = viz.f1_vs_frequency(df)  # must not raise on log scale with a zero
     assert fig.axes
+
+
+def test_f1_vs_frequency_with_ci_whiskers():
+    df = _per_emotion_df().copy()
+    df["f1_low"] = (df["f1"] - 0.05).clip(lower=0)
+    df["f1_high"] = (df["f1"] + 0.05).clip(upper=1)
+    fig = viz.f1_vs_frequency(df)  # CI columns present -> draws whiskers, no error
+    assert fig.axes

@@ -95,3 +95,19 @@ def test_run_experiment_records_device_and_per_emotion():
     assert set(row.per_label_support) == {"joy", "anger"}
     assert row.per_label_support["joy"] == 2
     assert all(0.0 <= f1 <= 1.0 for f1 in row.per_label_f1.values())
+
+
+def test_run_experiment_bootstrap_populates_cis():
+    data = _toy_data()
+    row = run_experiment(LogisticReg(), data, data, dataset_name="toy", bootstrap=50)
+    assert row.macro_f1_ci is not None and len(row.macro_f1_ci) == 2
+    assert row.macro_f1_ci[0] <= row.macro_f1_ci[1]
+    assert row.micro_f1_ci is not None
+    assert set(row.per_label_f1_ci) == {"joy", "anger"}
+
+
+def test_run_experiment_no_bootstrap_leaves_cis_empty():
+    data = _toy_data()
+    row = run_experiment(LogisticReg(), data, data, dataset_name="toy")
+    assert row.macro_f1_ci is None
+    assert row.per_label_f1_ci == {}

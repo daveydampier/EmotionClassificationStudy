@@ -156,15 +156,22 @@ CWD: `PROJECT_ROOT`, `DATA_DIR`, `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`,
 - `per_label_f1(...)` → `{label: f1}` convenience.
 - `evaluate(...)` → predictive metrics + ECE in one dict.
 - `binarize(y_prob, threshold)`.
+- `bootstrap_f1_ci(y_true, y_prob, ..., n_boot, ci, seed)` → `{"macro": (lo, hi),
+  "micro": (lo, hi)}` — test-set sampling CIs (resamples the eval; no retraining).
+- `bootstrap_per_label_f1_ci(y_true, y_prob, label_names, ...)` → `{label: (lo, hi)}`
+  — per-emotion CIs (balloon for rare emotions; honest error bars for RQ3).
 
 ### `scorecard.py`
 - `HIGHER_IS_BETTER` — axis → direction map (drives normalization).
 - `ScorecardRow` fields: `model`, `dataset`; `macro_f1`, `micro_f1`,
   `subset_accuracy`; `ece`; `train_seconds`, `predict_latency_ms`, `throughput`
   (samples/sec), `model_size_mb`, `cost_usd`; `device`; `per_label_f1`,
-  `per_label_support`; `meta` (schema, features, n_train/test/labels, seed, …).
+  `per_label_support`; `macro_f1_ci` / `micro_f1_ci` (`[low, high]`) and
+  `per_label_f1_ci` (`{label: [low, high]}`) — populated only when a run requests
+  bootstrap; `meta` (schema, features, n_train/test/labels, seed, …).
 - `Scorecard`: `add`, `axes`, `normalized()`, `to_dataframe()`, `to_markdown()`.
-  Non-axis fields (`device`, per-emotion dicts) never leak into normalization.
+  Non-axis fields (`device`, per-emotion dicts, CI fields) never leak into
+  normalization.
 
 ### `models/`
 - **`base.py`** — `EmotionModel` protocol + `BaseEmotionModel` (supplies a default
@@ -183,25 +190,32 @@ CWD: `PROJECT_ROOT`, `DATA_DIR`, `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`,
 ### `experiment.py`
 - `set_seed(seed)` — seeds Python/NumPy/(torch if present).
 - `run_experiment(model, train, test, *, dataset_name, threshold=0.5, seed=42,
-  cost_usd=None, extra_meta=None) -> ScorecardRow` — seeds, times fit, times
-  inference (→ per-sample latency), scores predictive + calibration + per-emotion,
-  measures `size_mb()`, and records the device.
+  cost_usd=None, bootstrap=0, extra_meta=None) -> ScorecardRow` — seeds, times fit,
+  times inference (→ per-sample latency + throughput), scores predictive +
+  calibration + per-emotion, measures `size_mb()`, records the device, and (when
+  `bootstrap > 0`) computes macro/micro + per-label F1 CIs.
 - `_detect_device(model)` → `"cpu"` / `"cuda:0"` (reads a torch model's
   parameters; classical models report CPU). Makes the CPU/GPU timing-fairness
   caveat visible in every row.
 
 ### `results.py` (stdlib only)
 - `save_results(card, out_dir, name) -> {json, scorecard, per_emotion}` writes
-  `<name>.json` (full record), `<name>_scorecard.csv` (flat headline metrics),
-  `<name>_per_emotion.csv` (long: model × emotion → F1 + support).
+  `<name>.json` (full record), `<name>_scorecard.csv` (flat headline metrics + CIs),
+  `<name>_per_emotion.csv` (long: model × emotion → F1 (+CIs) + support).
+- `summarize(card) -> [dict]` — groups per-seed rows by `(model, dataset, schema,
+  features)` into `<axis>_mean` / `<axis>_std` (multi-seed aggregation).
+- `save_summary(card, out_dir, name) -> Path` — writes `<name>_summary.csv`.
 - `load_results(json_path) -> list[dict]`.
 
 ### `viz.py` (matplotlib/seaborn/pandas)
 - `pareto_scatter(scorecard_df, x="train_seconds", y="macro_f1")`.
 - `per_emotion_heatmap(per_emotion_df)` — emotion × model, ordered by frequency.
 - `per_emotion_violin(per_emotion_df)` — F1 distribution per model.
-- `f1_vs_frequency(per_emotion_df)` — **the core figure** (log-frequency x-axis).
+- `f1_vs_frequency(per_emotion_df)` — **the core figure** (log-frequency x-axis;
+  draws bootstrap CI whiskers if `f1_low`/`f1_high` columns are present).
 - `granularity_bars(scorecard_df, metric)` — across schemas (needs a multi-schema df).
+- `feature_bars(scorecard_df, metric)` — TF-IDF vs BoW per model (needs both
+  backends; strips the `_<features>` suffix to pair them).
 - `save_all(...)`, `load_scorecard(csv)`, `load_per_emotion(csv)`, `SCHEMA_ORDER`.
 - Each figure function returns a Matplotlib `Figure`. Not imported by the package
   `__init__` (keeps library import light).
@@ -226,6 +240,8 @@ Runs one or more models on a dataset+schema, prints a scorecard, and persists it
 | `--train-split` / `--test-split` | `train` / `test` | dataset split names |
 | `--limit-train` / `--limit-test` | none | cap rows (fast smoke runs) |
 | `--seed` | `42` | RNG seed |
+| `--seeds` | none | run each model across several seeds → mean ± std summary (overrides `--seed`) |
+| `--bootstrap` | `0` | bootstrap resamples for test-set F1 CIs (e.g. `1000`) |
 | `--out-dir` | `results` | where CSV/JSON are written |
 | `--run-name` | `<dataset>_<schema>_<features>` | output basename |
 | `--no-save` | off | skip writing results |
@@ -265,6 +281,12 @@ analysis): does the lightweight penalty shrink as the taxonomy coarsens?
 - **per-emotion F1 + support** — F1 per label plus its positive count (class
   frequency) in the eval set — feeds the heatmap, violin, and core scatter.
 
+**Uncertainty** comes in two orthogonal flavors: **multi-seed** (`--seeds`)
+measures *model* stochasticity (only Random Forest and the deep/transformer tiers
+vary; NB/LogReg/SVM are deterministic), while **bootstrap** (`--bootstrap`)
+measures *test-set sampling* uncertainty via 95% CIs on macro/micro and per-emotion
+F1 — the latter balloon for rare emotions.
+
 Efficiency axes (`train_seconds`, `predict_latency_ms`, `throughput`
 (samples/sec), `model_size_mb`) are recorded per run. Because the lightweight tier
 runs on CPU and the transformer on GPU, timing/latency/throughput are **only
@@ -279,15 +301,18 @@ inverse of latency, reported explicitly as a named RQ1 efficiency metric.
 `save_results(card, out_dir, name)` writes three files:
 
 - **`<name>.json`** — list of full `ScorecardRow` dicts (everything, incl.
-  `meta`, `device`, per-emotion dicts). Round-trips via `load_results`.
+  `meta`, `device`, per-emotion dicts, CIs). Round-trips via `load_results`.
 - **`<name>_scorecard.csv`** — columns: `model, dataset, schema, features,
-  device, macro_f1, micro_f1, subset_accuracy, ece, train_seconds,
-  predict_latency_ms, throughput, model_size_mb, cost_usd, n_train, n_test,
-  n_labels, seed`.
+  device, macro_f1, macro_f1_low, macro_f1_high, micro_f1, micro_f1_low,
+  micro_f1_high, subset_accuracy, ece, train_seconds, predict_latency_ms,
+  throughput, model_size_mb, cost_usd, n_train, n_test, n_labels, seed`.
+  (The `*_low`/`*_high` columns are blank unless the run used `--bootstrap`.)
 - **`<name>_per_emotion.csv`** — long format: `model, dataset, schema, seed,
-  emotion, f1, support`. This is the shape the per-emotion figures consume.
+  emotion, f1, f1_low, f1_high, support`. This is the shape the per-emotion
+  figures consume (`f1_low`/`f1_high` blank unless bootstrapped).
 
-`results/` is git-ignored (outputs are regenerable).
+A multi-seed run (`--seeds`) also writes **`<name>_summary.csv`** (per-model
+`<axis>_mean` / `<axis>_std`). `results/` is git-ignored (outputs are regenerable).
 
 ---
 
@@ -306,7 +331,13 @@ python scripts/make_figures.py --results-dir results --name go_native
 python scripts/run_experiment.py --models logreg --schema ekman6 --run-name go_ekman6
 python scripts/run_experiment.py --models logreg --schema sentiment3 --run-name go_sent3
 
-# 4. Transformer reference (needs GPU for reasonable speed)
+# 4. With uncertainty: bootstrap CIs (test-set) and/or multi-seed (model stochasticity)
+python scripts/run_experiment.py --models logreg random_forest --schema native \
+    --bootstrap 1000 --run-name go_native_ci
+python scripts/run_experiment.py --models random_forest --schema native \
+    --seeds 42 43 44 45 46 --run-name go_native_seeds   # -> also *_summary.csv
+
+# 5. Transformer reference (needs GPU for reasonable speed)
 python scripts/run_experiment.py --models hf_distilbert --schema native \
     --limit-train 2000 --limit-test 1000 --run-name go_native_distilbert
 ```

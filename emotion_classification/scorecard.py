@@ -74,6 +74,13 @@ class ScorecardRow:
     per_label_f1: dict = field(default_factory=dict)
     per_label_support: dict = field(default_factory=dict)
 
+    # Bootstrap confidence intervals (test-set sampling uncertainty), populated
+    # only when a run requests them. ``*_ci`` are [low, high]; ``per_label_f1_ci``
+    # maps label -> [low, high].
+    macro_f1_ci: Optional[list] = None
+    micro_f1_ci: Optional[list] = None
+    per_label_f1_ci: dict = field(default_factory=dict)
+
     # Free-form extras (hyperparameters, label schema, n_samples, …)
     meta: dict = field(default_factory=dict)
 

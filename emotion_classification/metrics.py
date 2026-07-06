@@ -146,3 +146,74 @@ def evaluate(
     out = classification_metrics(y_true, y_prob, threshold)
     out["ece"] = expected_calibration_error(y_true, y_prob, n_bins)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Bootstrap confidence intervals (test-set sampling uncertainty)
+# ---------------------------------------------------------------------------
+# These quantify how precisely a score was estimated on a *finite* test set,
+# independent of model stochasticity (which multi-seed runs measure). They are
+# especially informative for rare-emotion per-label F1, whose CIs balloon when
+# support is small — the honest error bars for the RQ3 core figure.
+
+
+def _bootstrap_percentiles(samples: np.ndarray, ci: float) -> "tuple":
+    a = (1.0 - ci) / 2.0
+    lo = np.quantile(samples, a, axis=0)
+    hi = np.quantile(samples, 1.0 - a, axis=0)
+    return lo, hi
+
+
+def bootstrap_f1_ci(
+    y_true: np.ndarray, y_prob: np.ndarray, threshold: float = 0.5,
+    n_boot: int = 1000, ci: float = 0.95, seed: int = 0,
+) -> "dict[str, tuple]":
+    """Bootstrap CI for macro- and micro-F1.
+
+    Resamples the evaluation rows with replacement ``n_boot`` times (predictions
+    are *not* recomputed — no retraining), returning
+    ``{"macro": (low, high), "micro": (low, high)}`` at confidence ``ci``.
+    """
+    y_true = _as_2d_float(y_true).astype(np.int64)
+    y_pred = binarize(y_prob, threshold)
+    n = y_true.shape[0]
+    rng = np.random.default_rng(seed)
+
+    macro, micro = [], []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        yt, yp = y_true[idx], y_pred[idx]
+        macro.append(f1_score(yt, yp, average="macro", zero_division=0))
+        micro.append(f1_score(yt, yp, average="micro", zero_division=0))
+
+    mlo, mhi = _bootstrap_percentiles(np.asarray(macro), ci)
+    ulo, uhi = _bootstrap_percentiles(np.asarray(micro), ci)
+    return {"macro": (float(mlo), float(mhi)), "micro": (float(ulo), float(uhi))}
+
+
+def bootstrap_per_label_f1_ci(
+    y_true: np.ndarray, y_prob: np.ndarray, label_names: "list[str]",
+    threshold: float = 0.5, n_boot: int = 1000, ci: float = 0.95, seed: int = 0,
+) -> "dict[str, tuple]":
+    """Bootstrap CI for each label's F1 → ``{label: (low, high)}``.
+
+    This is the backbone of honest error bars on the per-emotion figure: a rare
+    emotion (small support) gets a wide interval, showing its F1 is estimated
+    from few examples.
+    """
+    y_true = _as_2d_float(y_true).astype(np.int64)
+    y_pred = binarize(y_prob, threshold)
+    if y_true.shape[1] != len(label_names):
+        raise ValueError(
+            f"label_names has {len(label_names)} entries but y_true has "
+            f"{y_true.shape[1]} columns"
+        )
+    n = y_true.shape[0]
+    rng = np.random.default_rng(seed)
+
+    samples = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        samples.append(f1_score(y_true[idx], y_pred[idx], average=None, zero_division=0))
+    lo, hi = _bootstrap_percentiles(np.asarray(samples), ci)  # each shape (n_labels,)
+    return {name: (float(lo[i]), float(hi[i])) for i, name in enumerate(label_names)}

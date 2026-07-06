@@ -102,12 +102,25 @@ def f1_vs_frequency(per_emotion: pd.DataFrame) -> plt.Figure:
     Tests whether the lightweight accuracy penalty concentrates in rare (low
     support) emotions. Log x-axis because class frequency is heavily skewed;
     labels with zero support in the eval set are dropped (undefined on a log
-    scale).
+    scale). If the data carries bootstrap ``f1_low`` / ``f1_high`` columns, gray
+    vertical CI whiskers are drawn — they balloon for rare emotions, showing those
+    F1 estimates are the least certain.
     """
     data = per_emotion[per_emotion["support"] > 0]
     fig, ax = plt.subplots(figsize=(7.5, 5.5))
+
+    if {"f1_low", "f1_high"} <= set(data.columns):
+        ci_rows = data.dropna(subset=["f1_low", "f1_high"])
+        if len(ci_rows):
+            ax.errorbar(
+                ci_rows["support"], ci_rows["f1"],
+                yerr=[(ci_rows["f1"] - ci_rows["f1_low"]).clip(lower=0),
+                      (ci_rows["f1_high"] - ci_rows["f1"]).clip(lower=0)],
+                fmt="none", ecolor="gray", alpha=0.4, capsize=2, zorder=1,
+            )
+
     sns.scatterplot(data=data, x="support", y="f1", hue="model", s=55,
-                    alpha=0.8, ax=ax)
+                    alpha=0.8, ax=ax, zorder=2)
     ax.set_xscale("log")
     ax.set_ylim(-0.05, 1.05)
     ax.set_xlabel("class frequency (support, log scale)")
