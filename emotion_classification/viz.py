@@ -133,6 +133,29 @@ def granularity_bars(scorecard: pd.DataFrame, *, metric: str = "macro_f1") -> pl
     return fig
 
 
+def feature_bars(scorecard: pd.DataFrame, *, metric: str = "macro_f1") -> plt.Figure:
+    """Grouped bars of ``metric`` per model, comparing feature backends.
+
+    Expects a scorecard spanning both feature backends (``features`` in {tfidf,
+    bow}); the trailing ``_<features>`` suffix is stripped from each model name so
+    the two representations sit side by side for each base model.
+    """
+    df = scorecard.copy()
+    df["base_model"] = [
+        m[: -(len(str(f)) + 1)] if str(m).endswith(f"_{f}") else m
+        for m, f in zip(df["model"], df["features"])
+    ]
+    fig, ax = plt.subplots(figsize=(7.5, 5))
+    sns.barplot(data=df, x="base_model", y=metric, hue="features", ax=ax)
+    ax.set_xlabel("model")
+    ax.set_ylabel(metric.replace("_", " "))
+    ax.set_title(f"{metric.replace('_', ' ')}: TF-IDF vs. Bag-of-Words")
+    ax.legend(title="features")
+    ax.tick_params(axis="x", rotation=15)
+    fig.tight_layout()
+    return fig
+
+
 def save_all(scorecard: pd.DataFrame, per_emotion: pd.DataFrame, out_dir,
              *, prefix: str = "") -> dict:
     """Generate every figure and save as PNG under ``out_dir``. Returns paths."""

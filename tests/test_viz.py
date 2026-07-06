@@ -62,6 +62,21 @@ def test_granularity_bars_returns_figure():
     assert fig.axes
 
 
+def test_feature_bars_strips_suffix_and_returns_figure():
+    df = pd.DataFrame([
+        {"model": "logreg_tfidf", "features": "tfidf", "macro_f1": 0.44},
+        {"model": "logreg_bow", "features": "bow", "macro_f1": 0.43},
+        {"model": "naive_bayes_tfidf", "features": "tfidf", "macro_f1": 0.13},
+        {"model": "naive_bayes_bow", "features": "bow", "macro_f1": 0.21},
+    ])
+    fig = viz.feature_bars(df)
+    ax = fig.axes[0]
+    # base-model tick labels have the feature suffix stripped
+    labels = {t.get_text() for t in ax.get_xticklabels()}
+    assert "logreg" in labels and "naive_bayes" in labels
+    assert not any(l.endswith("_tfidf") or l.endswith("_bow") for l in labels)
+
+
 def test_save_all_writes_pngs(tmp_path):
     paths = viz.save_all(_scorecard_df(), _per_emotion_df(), tmp_path, prefix="t_")
     # granularity included because >1 schema present
