@@ -88,6 +88,8 @@ def test_run_experiment_records_device_and_per_emotion():
     row = run_experiment(LogisticReg(), data, data, dataset_name="toy")
     # classical models run on CPU
     assert row.device == "cpu"
+    # throughput (samples/sec) recorded for RQ1; roughly the inverse of latency
+    assert row.throughput > 0.0
     # per-emotion breakdown covers every label, with support = positive counts
     assert set(row.per_label_f1) == {"joy", "anger"}
     assert set(row.per_label_support) == {"joy", "anger"}

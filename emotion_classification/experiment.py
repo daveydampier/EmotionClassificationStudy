@@ -88,6 +88,7 @@ def run_experiment(
     y_prob = model.predict_proba(test.texts)
     predict_seconds = time.perf_counter() - t1
     latency_ms = (predict_seconds / max(len(test), 1)) * 1000.0
+    throughput = (len(test) / predict_seconds) if predict_seconds > 0 else 0.0
 
     scores = evaluate(test.Y, y_prob, threshold=threshold)
     per_label = per_label_metrics(test.Y, y_prob, test.label_names, threshold)
@@ -114,6 +115,7 @@ def run_experiment(
         ece=scores["ece"],
         train_seconds=train_seconds,
         predict_latency_ms=latency_ms,
+        throughput=throughput,
         model_size_mb=model.size_mb(),
         cost_usd=cost_usd,
         device=_detect_device(model),

@@ -11,6 +11,7 @@ Predictive          ``macro_f1``, ``micro_f1``, ``subset_accuracy``      higher
 Calibration         ``ece``                                              lower
 Efficiency (train)  ``train_seconds``                                    lower
 Efficiency (infer)  ``predict_latency_ms`` (per sample)                  lower
+Efficiency (infer)  ``throughput`` (samples/sec; inverse of latency)     higher
 Footprint           ``model_size_mb``                                    lower
 Cost                ``cost_usd`` (optional; for API/LLM tier)            lower
 ==================  ===================================================  ========
@@ -33,6 +34,7 @@ HIGHER_IS_BETTER: dict[str, bool] = {
     "ece": False,
     "train_seconds": False,
     "predict_latency_ms": False,
+    "throughput": True,
     "model_size_mb": False,
     "cost_usd": False,
 }
@@ -56,6 +58,7 @@ class ScorecardRow:
     # Efficiency / footprint / cost
     train_seconds: float = 0.0
     predict_latency_ms: float = 0.0
+    throughput: float = 0.0  # samples/second at inference (RQ1); inverse of latency
     model_size_mb: float = 0.0
     cost_usd: Optional[float] = None
 

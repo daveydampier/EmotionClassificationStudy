@@ -16,8 +16,8 @@ def _card():
         ScorecardRow(
             model="logreg_tfidf", dataset="go_emotions",
             macro_f1=0.45, micro_f1=0.55, subset_accuracy=0.30, ece=0.11,
-            train_seconds=0.4, predict_latency_ms=0.02, model_size_mb=1.4,
-            device="cpu",
+            train_seconds=0.4, predict_latency_ms=0.02, throughput=50000.0,
+            model_size_mb=1.4, device="cpu",
             per_label_f1={"joy": 0.8, "grief": 0.1},
             per_label_support={"joy": 500, "grief": 6},
             meta={"schema": "native", "features": "tfidf", "n_train": 4000,
@@ -50,6 +50,7 @@ def test_scorecard_csv_flattens_meta(tmp_path):
     assert record["device"] == "cpu"
     assert record["schema"] == "native"        # pulled from meta
     assert record["macro_f1"] == "0.45"
+    assert record["throughput"] == "50000.0"   # efficiency axis (RQ1)
     assert record["n_labels"] == "28"
 
 

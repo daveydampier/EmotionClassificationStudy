@@ -160,9 +160,9 @@ CWD: `PROJECT_ROOT`, `DATA_DIR`, `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`,
 ### `scorecard.py`
 - `HIGHER_IS_BETTER` — axis → direction map (drives normalization).
 - `ScorecardRow` fields: `model`, `dataset`; `macro_f1`, `micro_f1`,
-  `subset_accuracy`; `ece`; `train_seconds`, `predict_latency_ms`,
-  `model_size_mb`, `cost_usd`; `device`; `per_label_f1`, `per_label_support`;
-  `meta` (schema, features, n_train/test/labels, seed, …).
+  `subset_accuracy`; `ece`; `train_seconds`, `predict_latency_ms`, `throughput`
+  (samples/sec), `model_size_mb`, `cost_usd`; `device`; `per_label_f1`,
+  `per_label_support`; `meta` (schema, features, n_train/test/labels, seed, …).
 - `Scorecard`: `add`, `axes`, `normalized()`, `to_dataframe()`, `to_markdown()`.
   Non-axis fields (`device`, per-emotion dicts) never leak into normalization.
 
@@ -265,11 +265,12 @@ analysis): does the lightweight penalty shrink as the taxonomy coarsens?
 - **per-emotion F1 + support** — F1 per label plus its positive count (class
   frequency) in the eval set — feeds the heatmap, violin, and core scatter.
 
-Efficiency axes (`train_seconds`, `predict_latency_ms`, `model_size_mb`) are
-recorded per run. Because the lightweight tier runs on CPU and the transformer on
-GPU, timing/latency are **only comparable within the same `device`** — hence the
-device is recorded on every row, and **model size (MB) is the hardware-independent
-memory proxy**.
+Efficiency axes (`train_seconds`, `predict_latency_ms`, `throughput`
+(samples/sec), `model_size_mb`) are recorded per run. Because the lightweight tier
+runs on CPU and the transformer on GPU, timing/latency/throughput are **only
+comparable within the same `device`** — hence the device is recorded on every row,
+and **model size (MB) is the hardware-independent memory proxy**. Throughput is the
+inverse of latency, reported explicitly as a named RQ1 efficiency metric.
 
 ---
 
@@ -281,9 +282,10 @@ memory proxy**.
   `meta`, `device`, per-emotion dicts). Round-trips via `load_results`.
 - **`<name>_scorecard.csv`** — columns: `model, dataset, schema, features,
   device, macro_f1, micro_f1, subset_accuracy, ece, train_seconds,
-  predict_latency_ms, model_size_mb, cost_usd, n_train, n_test, n_labels, seed`.
-- **`<name>_per_emotion.csv`** — long format: `model, dataset, schema, emotion,
-  f1, support`. This is the shape the per-emotion figures consume.
+  predict_latency_ms, throughput, model_size_mb, cost_usd, n_train, n_test,
+  n_labels, seed`.
+- **`<name>_per_emotion.csv`** — long format: `model, dataset, schema, seed,
+  emotion, f1, support`. This is the shape the per-emotion figures consume.
 
 `results/` is git-ignored (outputs are regenerable).
 

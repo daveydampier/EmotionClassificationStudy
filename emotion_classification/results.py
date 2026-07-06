@@ -29,7 +29,7 @@ from .scorecard import HIGHER_IS_BETTER, Scorecard
 _SCORECARD_FIELDS = [
     "model", "dataset", "schema", "features", "device",
     "macro_f1", "micro_f1", "subset_accuracy", "ece",
-    "train_seconds", "predict_latency_ms", "model_size_mb", "cost_usd",
+    "train_seconds", "predict_latency_ms", "throughput", "model_size_mb", "cost_usd",
     "n_train", "n_test", "n_labels", "seed",
 ]
 _META_FIELDS = {"schema", "features", "n_train", "n_test", "n_labels", "seed"}

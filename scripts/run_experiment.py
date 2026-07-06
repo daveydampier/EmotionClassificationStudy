@@ -143,8 +143,8 @@ def main() -> int:
             tag = f"[seed {seed}] " if multiseed else ""
             print(f"  {tag}macro_f1={row.macro_f1:.3f}  micro_f1={row.micro_f1:.3f}  "
                   f"ece={row.ece:.3f}  train={row.train_seconds:.1f}s  "
-                  f"latency={row.predict_latency_ms:.2f}ms  size={row.model_size_mb:.1f}MB  "
-                  f"device={row.device}")
+                  f"latency={row.predict_latency_ms:.2f}ms  thrpt={row.throughput:.0f}/s  "
+                  f"size={row.model_size_mb:.1f}MB  device={row.device}")
 
     print("\n## Raw scorecard\n")
     print(card.to_markdown())
