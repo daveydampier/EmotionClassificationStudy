@@ -66,22 +66,27 @@ def resolve_schema(dataset: str, schema: str, ds):
     raise SystemExit(f"unknown schema {schema!r}")
 
 
-def build_model(name: str, features: str):
-    """Instantiate a model by short name (lazy imports keep startup cheap)."""
+def build_model(name: str, features: str, epochs=None):
+    """Instantiate a model by short name (lazy imports keep startup cheap).
+
+    ``epochs`` (if set) overrides the training-epoch default of the deep/transformer
+    tiers; it is ignored by the classical models (which don't train by epochs).
+    """
     if name in CLASSICAL_BUILDERS:
         import emotion_classification.models.classical as C
 
         return getattr(C, CLASSICAL_BUILDERS[name])(features=features)
+    epoch_kw = {"epochs": epochs} if epochs else {}
     if name == "bilstm":
         from emotion_classification.models.deep import BiLSTMClassifier
 
-        return BiLSTMClassifier()
+        return BiLSTMClassifier(**epoch_kw)
     if name.startswith("hf_") or name == "transformer":
         from emotion_classification.models.transformer import TransformerClassifier
 
         model_name = "distilbert-base-uncased" if name in ("hf_distilbert", "transformer") \
             else name[len("hf_"):]
-        return TransformerClassifier(model_name=model_name)
+        return TransformerClassifier(model_name=model_name, **epoch_kw)
     raise SystemExit(f"unknown model: {name!r}")
 
 
@@ -114,6 +119,12 @@ def main() -> int:
     parser.add_argument("--bootstrap", type=int, default=0,
                         help="bootstrap resamples for test-set F1 confidence intervals "
                              "(0 = off; e.g. 1000). Adds macro/micro + per-emotion CIs.")
+    parser.add_argument("--epochs", type=int, default=None,
+                        help="training epochs for deep/transformer tiers (overrides the "
+                             "model default; e.g. 5). Ignored by classical models.")
+    parser.add_argument("--test-dataset", default=None, choices=list(LOADERS),
+                        help="evaluate on a DIFFERENT dataset's test split (cross-dataset "
+                             "generalization). Requires a shared schema, e.g. ekman6.")
     args = parser.parse_args()
 
     print(f"Loading {args.dataset} (schema={args.schema}, features={args.features}) ...")
@@ -122,7 +133,20 @@ def main() -> int:
     prepared = prepare_dataset(ds, label_names, projector)
 
     train = prepared[args.train_split]
-    test = prepared[args.test_split]
+
+    if args.test_dataset and args.test_dataset != args.dataset:
+        if args.schema == "native":
+            raise SystemExit("--test-dataset needs a shared schema (e.g. ekman6), not "
+                             "'native' — datasets have different native label sets.")
+        print(f"Cross-dataset eval: train on {args.dataset}, test on {args.test_dataset}")
+        test_ds = LOADERS[args.test_dataset]()
+        test_labels, test_proj = resolve_schema(args.test_dataset, args.schema, test_ds)
+        test = prepare_dataset(test_ds, test_labels, test_proj)[args.test_split]
+        dataset_label = f"{args.dataset}->{args.test_dataset}"
+    else:
+        test = prepared[args.test_split]
+        dataset_label = args.dataset
+
     if args.limit_train:
         train.texts = train.texts[: args.limit_train]
         train.Y = train.Y[: args.limit_train]
@@ -139,10 +163,12 @@ def main() -> int:
     for name in args.models:
         print(f"\n=== {name} ===")
         for seed in seeds:
-            model = build_model(name, args.features)  # fresh instance per seed
-            row = run_experiment(model, train, test, dataset_name=args.dataset, seed=seed,
+            model = build_model(name, args.features, args.epochs)  # fresh instance per seed
+            row = run_experiment(model, train, test, dataset_name=dataset_label, seed=seed,
                                  bootstrap=args.bootstrap,
-                                 extra_meta={"schema": args.schema, "features": args.features})
+                                 extra_meta={"schema": args.schema, "features": args.features,
+                                             "epochs": args.epochs,
+                                             "test_dataset": args.test_dataset or args.dataset})
             card.add(row)
             tag = f"[seed {seed}] " if multiseed else ""
             print(f"  {tag}macro_f1={row.macro_f1:.3f}  micro_f1={row.micro_f1:.3f}  "
