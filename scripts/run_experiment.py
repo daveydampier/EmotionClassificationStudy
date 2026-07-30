@@ -125,6 +125,10 @@ def main() -> int:
     parser.add_argument("--test-dataset", default=None, choices=list(LOADERS),
                         help="evaluate on a DIFFERENT dataset's test split (cross-dataset "
                              "generalization). Requires a shared schema, e.g. ekman6.")
+    parser.add_argument("--subsample-train", type=int, default=None,
+                        help="randomly sample this many training rows (seeded by --seed) "
+                             "before fitting — for matched-size control experiments. "
+                             "Unlike --limit-train (first N), this draws a random subset.")
     args = parser.parse_args()
 
     print(f"Loading {args.dataset} (schema={args.schema}, features={args.features}) ...")
@@ -154,6 +158,15 @@ def main() -> int:
         test.texts = test.texts[: args.limit_test]
         test.Y = test.Y[: args.limit_test]
 
+    if args.subsample_train and args.subsample_train < len(train):
+        import numpy as np
+
+        rng = np.random.RandomState(args.seed)
+        idx = np.sort(rng.choice(len(train), size=args.subsample_train, replace=False))
+        train.texts = [train.texts[i] for i in idx]
+        train.Y = train.Y[idx]
+        print(f"  subsampled train to {len(train)} rows (random, seed {args.seed})")
+
     print(f"  train={len(train)}  test={len(test)}  n_labels={len(label_names)}")
 
     seeds = args.seeds if args.seeds else [args.seed]
@@ -168,6 +181,7 @@ def main() -> int:
                                  bootstrap=args.bootstrap,
                                  extra_meta={"schema": args.schema, "features": args.features,
                                              "epochs": args.epochs,
+                                             "subsample_train": args.subsample_train,
                                              "test_dataset": args.test_dataset or args.dataset})
             card.add(row)
             tag = f"[seed {seed}] " if multiseed else ""
