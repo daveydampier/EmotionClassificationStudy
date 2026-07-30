@@ -1,7 +1,7 @@
 """Canonical filesystem paths for the project.
 
 Import these instead of hard-coding paths so code works regardless of the
-current working directory (scripts, notebooks, tests).
+current working directory (scripts, tests).
 """
 
 from pathlib import Path
@@ -14,7 +14,6 @@ RAW_DATA_DIR: Path = DATA_DIR / "raw"
 PROCESSED_DATA_DIR: Path = DATA_DIR / "processed"
 
 MODELS_DIR: Path = PROJECT_ROOT / "models"
-NOTEBOOKS_DIR: Path = PROJECT_ROOT / "notebooks"
 
 
 def ensure_dirs() -> None:

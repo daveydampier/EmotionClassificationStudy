@@ -1,8 +1,7 @@
 # Emotion Classification Study — Detailed Codebase Documentation
 
 This document is the engineering reference for the project. For the research
-framing and quick-start setup, see [README.md](README.md); for the study
-proposal, see [docs/proposal.md](docs/proposal.md).
+framing and quick-start setup, see [README.md](README.md).
 
 The study compares **classical, deep-learning, and transformer** models for
 text emotion classification not only on accuracy but on **deployment cost**
@@ -81,7 +80,7 @@ scripts/
 └── make_figures.py           # CLI: turn persisted CSVs into PNG figures
 
 tests/                        # pytest suite (see Testing & CI)
-docs/                         # proposal + writing scaffold
+run_m2.sh, run_m3.sh          # GPU-server batch scripts (the runs behind results/)
 ```
 
 ---
@@ -111,7 +110,7 @@ the contract is deliberate: calibration (ECE) needs them.
 ### The deployment scorecard (`scorecard.py`)
 A `ScorecardRow` records every axis for one (model, dataset) run. `Scorecard`
 collects rows and can `normalized()` every axis to `[0,1]` where **1 = best**
-(lower-is-better axes are inverted) — the input to radar/Pareto plots.
+(lower-is-better axes are inverted) — the input to the Pareto plots.
 
 ---
 
@@ -120,7 +119,7 @@ collects rows and can `normalized()` every axis to `[0,1]` where **1 = best**
 ### `config.py`
 Canonical paths derived from the package location so code works regardless of
 CWD: `PROJECT_ROOT`, `DATA_DIR`, `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`,
-`MODELS_DIR`, `NOTEBOOKS_DIR`, and `ensure_dirs()`.
+`MODELS_DIR`, and `ensure_dirs()`.
 
 ### `labels.py`
 - Taxonomies: `GOEMOTIONS` (28, neutral last), `EKMAN` (6), `SENTIMENT` (3),

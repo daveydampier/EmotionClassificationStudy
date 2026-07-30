@@ -18,7 +18,7 @@ Cost                ``cost_usd`` (optional; for API/LLM tier)            lower
 
 :meth:`Scorecard.normalized` min-max scales every axis to ``[0, 1]`` where 1 is
 always "best" (lower-is-better axes are inverted), so heterogeneous units become
-comparable — the input to radar / Pareto plots.
+comparable — the input to the Pareto plots.
 """
 
 from __future__ import annotations

@@ -108,8 +108,10 @@ def load_semeval2018(language: str = "english") -> EmotionDataset:
 def load_brighter(language: str = "eng") -> EmotionDataset:
     """BRIGHTER / SemEval-2025 Task 11 — 6 Ekman emotions, 32 languages.
 
-    Not implemented yet: confirm the exact HuggingFace dataset path/config for
-    BRIGHTER before wiring this up (see the dataset table in README.md).
+    FUTURE WORK — not used in this study. Left as a wired-in extension point for
+    the planned cross-lingual transfer experiment; confirm the exact HuggingFace
+    dataset path/config for BRIGHTER before implementing (see README.md dataset
+    table). The results in this repo use GoEmotions and SemEval-2018 only.
     """
     raise NotImplementedError(
         "BRIGHTER / SemEval-2025 Task 11 loader pending: confirm the HuggingFace "
@@ -118,6 +120,8 @@ def load_brighter(language: str = "eng") -> EmotionDataset:
 
 
 # Registry so callers can select a loader by short name.
+# "brighter" is a future-work extension point (raises NotImplementedError); the
+# study's results come from go_emotions and sem_eval_2018_task_1 only.
 LOADERS = {
     "go_emotions": load_goemotions,
     "sem_eval_2018_task_1": load_semeval2018,

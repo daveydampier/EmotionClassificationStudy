@@ -43,6 +43,8 @@ SEMEVAL2018: list[str] = [
 ]
 
 # --- BRIGHTER / SemEval-2025 Task 11: the Ekman 6 ----------------------------
+# Future-work target (not used in this study); its label set is the Ekman 6, so
+# no separate projection is needed when the cross-lingual experiment is added.
 BRIGHTER: list[str] = list(EKMAN)
 
 # ---------------------------------------------------------------------------
