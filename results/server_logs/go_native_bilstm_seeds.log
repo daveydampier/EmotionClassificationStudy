@@ -1,0 +1,25 @@
+Loading go_emotions (schema=native, features=tfidf) ...
+  train=43410  test=5427  n_labels=28
+
+=== bilstm ===
+  [seed 42] macro_f1=0.251  micro_f1=0.464  ece=0.004  train=13.8s  latency=0.02ms  thrpt=44055/s  size=14.2MB  device=cuda:0
+  [seed 43] macro_f1=0.270  micro_f1=0.479  ece=0.003  train=12.1s  latency=0.02ms  thrpt=43675/s  size=14.2MB  device=cuda:0
+  [seed 44] macro_f1=0.246  micro_f1=0.485  ece=0.006  train=12.5s  latency=0.02ms  thrpt=42821/s  size=14.2MB  device=cuda:0
+
+## Raw scorecard
+
+| model | dataset | macro_f1 | micro_f1 | subset_accuracy | ece | train_seconds | predict_latency_ms | throughput | model_size_mb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| bilstm | go_emotions | 0.2513 | 0.4636 | 0.3311 | 0.003904 | 13.79 | 0.0227 | 4.405e+04 | 14.2 |
+| bilstm | go_emotions | 0.2701 | 0.4789 | 0.346 | 0.003364 | 12.14 | 0.0229 | 4.367e+04 | 14.2 |
+| bilstm | go_emotions | 0.2458 | 0.4845 | 0.3612 | 0.005986 | 12.47 | 0.02335 | 4.282e+04 | 14.2 |
+
+## Multi-seed summary (mean +/- std over 3 seeds)
+
+  bilstm:  macro_f1=0.256+/-0.013  micro_f1=0.476+/-0.011  train=12.8+/-0.9s  size=14.2MB
+
+Saved results:
+  json        results/go_native_bilstm_seeds.json
+  scorecard   results/go_native_bilstm_seeds_scorecard.csv
+  per_emotion results/go_native_bilstm_seeds_per_emotion.csv
+  summary     results/go_native_bilstm_seeds_summary.csv

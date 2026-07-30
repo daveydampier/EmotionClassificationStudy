@@ -1,0 +1,140 @@
+[
+  {
+    "model": "bilstm",
+    "dataset": "go_emotions",
+    "macro_f1": 0.5683003199124497,
+    "micro_f1": 0.6211829436038514,
+    "subset_accuracy": 0.5297586143357288,
+    "ece": 0.07042171318347781,
+    "train_seconds": 13.734335396438837,
+    "predict_latency_ms": 0.022808742996559897,
+    "throughput": 43842.83693980084,
+    "model_size_mb": 14.174283027648926,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "positive": 0.7735986411065275,
+      "negative": 0.581901489117984,
+      "ambiguous": 0.38817733990147785,
+      "neutral": 0.5295238095238095
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "sentiment3",
+      "features": "tfidf",
+      "epochs": null,
+      "test_dataset": "go_emotions"
+    }
+  },
+  {
+    "model": "bilstm",
+    "dataset": "go_emotions",
+    "macro_f1": 0.5930601376428422,
+    "micro_f1": 0.6391184573002755,
+    "subset_accuracy": 0.5470794177261838,
+    "ece": 0.05947380687001237,
+    "train_seconds": 11.975996278226376,
+    "predict_latency_ms": 0.022526148117025715,
+    "throughput": 44392.853798389966,
+    "model_size_mb": 14.174283027648926,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "positive": 0.7716917111003393,
+      "negative": 0.5734136174154701,
+      "ambiguous": 0.4367034834324554,
+      "neutral": 0.5904317386231038
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 43,
+      "schema": "sentiment3",
+      "features": "tfidf",
+      "epochs": null,
+      "test_dataset": "go_emotions"
+    }
+  },
+  {
+    "model": "bilstm",
+    "dataset": "go_emotions",
+    "macro_f1": 0.592956448233236,
+    "micro_f1": 0.6417815095372821,
+    "subset_accuracy": 0.5481850009213193,
+    "ece": 0.05762729914243196,
+    "train_seconds": 12.332152590155602,
+    "predict_latency_ms": 0.022411673179269388,
+    "throughput": 44619.604792603874,
+    "model_size_mb": 14.174283027648926,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "positive": 0.7697680219506111,
+      "negative": 0.5472589792060492,
+      "ambiguous": 0.43636363636363634,
+      "neutral": 0.6184351554126474
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "sentiment3",
+      "features": "tfidf",
+      "epochs": null,
+      "test_dataset": "go_emotions"
+    }
+  }
+]

@@ -1,0 +1,166 @@
+[
+  {
+    "model": "naive_bayes_bow",
+    "dataset": "go_emotions",
+    "macro_f1": 0.5777551913409156,
+    "micro_f1": 0.6116288659793815,
+    "subset_accuracy": 0.45734291505435787,
+    "ece": 0.08996798852596553,
+    "train_seconds": 1.2178862000000663,
+    "predict_latency_ms": 0.01759043670672479,
+    "throughput": 56849.07183786414,
+    "model_size_mb": 9.104544639587402,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "positive": 0.727867320719458,
+      "negative": 0.5640831758034026,
+      "ambiguous": 0.4401650618982118,
+      "neutral": 0.5789052069425901
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "sentiment3",
+      "features": "bow"
+    }
+  },
+  {
+    "model": "logreg_bow",
+    "dataset": "go_emotions",
+    "macro_f1": 0.6178574804355887,
+    "micro_f1": 0.6511437908496732,
+    "subset_accuracy": 0.5037774092500461,
+    "ece": 0.033449670704018254,
+    "train_seconds": 5.467495300050359,
+    "predict_latency_ms": 0.016515017511992025,
+    "throughput": 60550.950023145386,
+    "model_size_mb": 3.0010547637939453,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "positive": 0.7674305216967333,
+      "negative": 0.5980806142034549,
+      "ambiguous": 0.4736129905277402,
+      "neutral": 0.6323057953144267
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "sentiment3",
+      "features": "bow"
+    }
+  },
+  {
+    "model": "linsvm_bow",
+    "dataset": "go_emotions",
+    "macro_f1": 0.43079069454400476,
+    "micro_f1": 0.5307262569832403,
+    "subset_accuracy": 0.3956145199926294,
+    "ece": 0.02556009534947089,
+    "train_seconds": 6.895633300009649,
+    "predict_latency_ms": 0.01846878569791451,
+    "throughput": 54145.41141775877,
+    "model_size_mb": 6.057480812072754,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "positive": 0.7392550143266475,
+      "negative": 0.42964678633468445,
+      "ambiguous": 0.15243101182654403,
+      "neutral": 0.40182996568814333
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "sentiment3",
+      "features": "bow"
+    }
+  },
+  {
+    "model": "random_forest_bow",
+    "dataset": "go_emotions",
+    "macro_f1": 0.49048809558130363,
+    "micro_f1": 0.5824096135916296,
+    "subset_accuracy": 0.46010687304219644,
+    "ece": 0.014410701987282526,
+    "train_seconds": 79.68333119997988,
+    "predict_latency_ms": 0.0790018242168969,
+    "throughput": 12657.935559241429,
+    "model_size_mb": 1821.901364326477,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "positive": 0.7467948717948718,
+      "negative": 0.4668523676880223,
+      "ambiguous": 0.19291819291819293,
+      "neutral": 0.5553869499241275
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "sentiment3",
+      "features": "bow"
+    }
+  }
+]

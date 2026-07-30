@@ -1,0 +1,52 @@
+>>> go_native_bert_ep5 (09:41:11)
+      macro_f1=0.480  micro_f1=0.569  ece=0.013  train=242.6s  latency=0.43ms  thrpt=2350/s  size=417.8MB  device=cuda:0
+>>> go_native_bert_ep8 (09:45:31)
+      macro_f1=0.478  micro_f1=0.561  ece=0.022  train=385.3s  latency=0.43ms  thrpt=2348/s  size=417.8MB  device=cuda:0
+>>> go_native_distilbert_ep5 (09:52:15)
+      macro_f1=0.486  micro_f1=0.559  ece=0.013  train=130.2s  latency=0.26ms  thrpt=3872/s  size=255.5MB  device=cuda:0
+>>> go_native_distilbert_ep8 (09:54:42)
+      macro_f1=0.481  micro_f1=0.563  ece=0.022  train=207.5s  latency=0.26ms  thrpt=3869/s  size=255.5MB  device=cuda:0
+>>> xdata_go2semeval (09:58:26)
+      macro_f1=0.242  micro_f1=0.374  ece=0.056  train=0.7s  latency=0.01ms  thrpt=122673/s  size=15.2MB  device=cpu
+      macro_f1=0.364  micro_f1=0.419  ece=0.067  train=1.4s  latency=0.01ms  thrpt=128614/s  size=4.5MB  device=cpu
+      macro_f1=0.241  micro_f1=0.355  ece=0.118  train=3.9s  latency=0.01ms  thrpt=93555/s  size=9.9MB  device=cpu
+      macro_f1=0.175  micro_f1=0.273  ece=0.133  train=12.6s  latency=0.20ms  thrpt=4982/s  size=1869.5MB  device=cpu
+      macro_f1=0.242  micro_f1=0.422  ece=0.129  train=13.6s  latency=0.02ms  thrpt=52084/s  size=14.2MB  device=cuda:0
+      macro_f1=0.218  micro_f1=0.271  ece=0.229  train=78.4s  latency=0.24ms  thrpt=4250/s  size=255.5MB  device=cuda:0
+      macro_f1=0.263  micro_f1=0.301  ece=0.218  train=145.5s  latency=0.39ms  thrpt=2571/s  size=417.7MB  device=cuda:0
+>>> go_ekman6_bilstm_seeds (10:03:21)
+      [seed 42] macro_f1=0.488  micro_f1=0.597  ece=0.027  train=13.5s  latency=0.02ms  thrpt=44550/s  size=14.2MB  device=cuda:0
+      [seed 43] macro_f1=0.510  micro_f1=0.617  ece=0.026  train=12.3s  latency=0.02ms  thrpt=44229/s  size=14.2MB  device=cuda:0
+      [seed 44] macro_f1=0.491  micro_f1=0.618  ece=0.030  train=12.2s  latency=0.02ms  thrpt=44686/s  size=14.2MB  device=cuda:0
+      bilstm:  macro_f1=0.496+/-0.012  micro_f1=0.611+/-0.012  train=12.7+/-0.7s  size=14.2MB
+>>> go_ekman6_distilbert_seeds (10:04:04)
+      [seed 42] macro_f1=0.602  micro_f1=0.693  ece=0.027  train=78.7s  latency=0.26ms  thrpt=3901/s  size=255.5MB  device=cuda:0
+      [seed 43] macro_f1=0.611  micro_f1=0.686  ece=0.032  train=76.9s  latency=0.26ms  thrpt=3860/s  size=255.5MB  device=cuda:0
+      [seed 44] macro_f1=0.612  micro_f1=0.686  ece=0.027  train=77.4s  latency=0.26ms  thrpt=3859/s  size=255.5MB  device=cuda:0
+      hf_distilbert-base-uncased:  macro_f1=0.608+/-0.005  micro_f1=0.688+/-0.004  train=77.6+/-0.9s  size=255.5MB
+>>> go_ekman6_bert_seeds (10:08:06)
+      [seed 42] macro_f1=0.603  micro_f1=0.688  ece=0.030  train=146.9s  latency=0.43ms  thrpt=2349/s  size=417.7MB  device=cuda:0
+      [seed 43] macro_f1=0.613  micro_f1=0.681  ece=0.032  train=145.4s  latency=0.43ms  thrpt=2353/s  size=417.7MB  device=cuda:0
+      [seed 44] macro_f1=0.619  micro_f1=0.681  ece=0.035  train=145.1s  latency=0.43ms  thrpt=2325/s  size=417.7MB  device=cuda:0
+      hf_bert-base-uncased:  macro_f1=0.612+/-0.008  micro_f1=0.683+/-0.004  train=145.8+/-1.0s  size=417.7MB
+>>> go_sentiment3_bilstm_seeds (10:15:35)
+      [seed 42] macro_f1=0.568  micro_f1=0.621  ece=0.070  train=13.7s  latency=0.02ms  thrpt=43843/s  size=14.2MB  device=cuda:0
+      [seed 43] macro_f1=0.593  micro_f1=0.639  ece=0.059  train=12.0s  latency=0.02ms  thrpt=44393/s  size=14.2MB  device=cuda:0
+      [seed 44] macro_f1=0.593  micro_f1=0.642  ece=0.058  train=12.3s  latency=0.02ms  thrpt=44620/s  size=14.2MB  device=cuda:0
+      bilstm:  macro_f1=0.585+/-0.014  micro_f1=0.634+/-0.011  train=12.7+/-0.9s  size=14.2MB
+>>> go_sentiment3_distilbert_seeds (10:16:18)
+      [seed 42] macro_f1=0.678  micro_f1=0.708  ece=0.048  train=79.4s  latency=0.26ms  thrpt=3841/s  size=255.5MB  device=cuda:0
+      [seed 43] macro_f1=0.682  micro_f1=0.711  ece=0.046  train=77.7s  latency=0.26ms  thrpt=3845/s  size=255.5MB  device=cuda:0
+      [seed 44] macro_f1=0.684  micro_f1=0.710  ece=0.044  train=78.1s  latency=0.25ms  thrpt=3942/s  size=255.5MB  device=cuda:0
+      hf_distilbert-base-uncased:  macro_f1=0.681+/-0.003  micro_f1=0.709+/-0.002  train=78.4+/-0.9s  size=255.5MB
+>>> go_sentiment3_bert_seeds (10:20:22)
+      [seed 42] macro_f1=0.681  micro_f1=0.711  ece=0.062  train=145.6s  latency=0.43ms  thrpt=2353/s  size=417.7MB  device=cuda:0
+      [seed 43] macro_f1=0.685  micro_f1=0.711  ece=0.058  train=144.1s  latency=0.42ms  thrpt=2397/s  size=417.7MB  device=cuda:0
+      [seed 44] macro_f1=0.685  micro_f1=0.709  ece=0.055  train=144.4s  latency=0.43ms  thrpt=2353/s  size=417.7MB  device=cuda:0
+      hf_bert-base-uncased:  macro_f1=0.683+/-0.002  micro_f1=0.711+/-0.001  train=144.7+/-0.8s  size=417.7MB
+==== DONE (10:27:48) ====
+--- epochs check ---
+logs/go_native_bert_ep5.log:  macro_f1=0.480  micro_f1=0.569  ece=0.013  train=242.6s  latency=0.43ms  thrpt=2350/s  size=417.8MB  device=cuda:0
+logs/go_native_bert_ep8.log:  macro_f1=0.478  micro_f1=0.561  ece=0.022  train=385.3s  latency=0.43ms  thrpt=2348/s  size=417.8MB  device=cuda:0
+logs/go_native_distilbert_ep5.log:  macro_f1=0.486  micro_f1=0.559  ece=0.013  train=130.2s  latency=0.26ms  thrpt=3872/s  size=255.5MB  device=cuda:0
+logs/go_native_distilbert_ep8.log:  macro_f1=0.481  micro_f1=0.563  ece=0.022  train=207.5s  latency=0.26ms  thrpt=3869/s  size=255.5MB  device=cuda:0

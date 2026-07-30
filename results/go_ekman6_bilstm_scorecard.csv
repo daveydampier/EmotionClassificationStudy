@@ -1,0 +1,2 @@
+model,dataset,schema,features,device,macro_f1,macro_f1_low,macro_f1_high,micro_f1,micro_f1_low,micro_f1_high,subset_accuracy,ece,train_seconds,predict_latency_ms,throughput,model_size_mb,cost_usd,n_train,n_test,n_labels,seed
+bilstm,go_emotions,ekman6,tfidf,cuda:0,0.48770912650938936,,,0.5974962063732928,,,0.49917081260364843,0.027277781572053746,13.350780811160803,0.022553118889297112,44339.765373850954,14.177212715148926,,43410,5427,7,42

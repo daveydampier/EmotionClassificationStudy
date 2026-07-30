@@ -1,0 +1,8 @@
+model,dataset,schema,seed,emotion,f1,f1_low,f1_high,support
+hf_bert-base-uncased,go_emotions,ekman6,42,anger,0.5347432024169184,,,726
+hf_bert-base-uncased,go_emotions,ekman6,42,disgust,0.4,,,123
+hf_bert-base-uncased,go_emotions,ekman6,42,fear,0.6597938144329897,,,98
+hf_bert-base-uncased,go_emotions,ekman6,42,joy,0.8247119392007846,,,2104
+hf_bert-base-uncased,go_emotions,ekman6,42,sadness,0.6052631578947368,,,379
+hf_bert-base-uncased,go_emotions,ekman6,42,surprise,0.5190972222222222,,,677
+hf_bert-base-uncased,go_emotions,ekman6,42,neutral,0.6755555555555556,,,1787

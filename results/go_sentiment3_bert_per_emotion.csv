@@ -1,0 +1,5 @@
+model,dataset,schema,seed,emotion,f1,f1_low,f1_high,support
+hf_bert-base-uncased,go_emotions,sentiment3,42,positive,0.8220916568742656,,,2104
+hf_bert-base-uncased,go_emotions,sentiment3,42,negative,0.6794707639778063,,,1262
+hf_bert-base-uncased,go_emotions,sentiment3,42,ambiguous,0.5773353751914242,,,677
+hf_bert-base-uncased,go_emotions,sentiment3,42,neutral,0.6457553956834532,,,1787

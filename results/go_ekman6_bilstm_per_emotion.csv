@@ -1,0 +1,8 @@
+model,dataset,schema,seed,emotion,f1,f1_low,f1_high,support
+bilstm,go_emotions,ekman6,42,anger,0.38035714285714284,,,726
+bilstm,go_emotions,ekman6,42,disgust,0.37349397590361444,,,123
+bilstm,go_emotions,ekman6,42,fear,0.4460431654676259,,,98
+bilstm,go_emotions,ekman6,42,joy,0.7656975323723431,,,2104
+bilstm,go_emotions,ekman6,42,sadness,0.4918032786885246,,,379
+bilstm,go_emotions,ekman6,42,surprise,0.39254170755642787,,,677
+bilstm,go_emotions,ekman6,42,neutral,0.5640270827200471,,,1787

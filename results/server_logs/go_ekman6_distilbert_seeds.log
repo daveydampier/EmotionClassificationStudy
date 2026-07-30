@@ -1,0 +1,31 @@
+Some weights of DistilBertForSequenceClassification were not initialized from the model checkpoint at distilbert-base-uncased and are newly initialized: ['classifier.bias', 'classifier.weight', 'pre_classifier.bias', 'pre_classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Some weights of DistilBertForSequenceClassification were not initialized from the model checkpoint at distilbert-base-uncased and are newly initialized: ['classifier.bias', 'classifier.weight', 'pre_classifier.bias', 'pre_classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Some weights of DistilBertForSequenceClassification were not initialized from the model checkpoint at distilbert-base-uncased and are newly initialized: ['classifier.bias', 'classifier.weight', 'pre_classifier.bias', 'pre_classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Loading go_emotions (schema=ekman6, features=tfidf) ...
+  train=43410  test=5427  n_labels=7
+
+=== hf_distilbert ===
+  [seed 42] macro_f1=0.602  micro_f1=0.693  ece=0.027  train=78.7s  latency=0.26ms  thrpt=3901/s  size=255.5MB  device=cuda:0
+  [seed 43] macro_f1=0.611  micro_f1=0.686  ece=0.032  train=76.9s  latency=0.26ms  thrpt=3860/s  size=255.5MB  device=cuda:0
+  [seed 44] macro_f1=0.612  micro_f1=0.686  ece=0.027  train=77.4s  latency=0.26ms  thrpt=3859/s  size=255.5MB  device=cuda:0
+
+## Raw scorecard
+
+| model | dataset | macro_f1 | micro_f1 | subset_accuracy | ece | train_seconds | predict_latency_ms | throughput | model_size_mb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hf_distilbert-base-uncased | go_emotions | 0.6021 | 0.693 | 0.6125 | 0.02689 | 78.68 | 0.2563 | 3901 | 255.5 |
+| hf_distilbert-base-uncased | go_emotions | 0.6108 | 0.6862 | 0.6088 | 0.03174 | 76.87 | 0.2591 | 3860 | 255.5 |
+| hf_distilbert-base-uncased | go_emotions | 0.6118 | 0.6861 | 0.6059 | 0.02707 | 77.37 | 0.2591 | 3859 | 255.5 |
+
+## Multi-seed summary (mean +/- std over 3 seeds)
+
+  hf_distilbert-base-uncased:  macro_f1=0.608+/-0.005  micro_f1=0.688+/-0.004  train=77.6+/-0.9s  size=255.5MB
+
+Saved results:
+  json        results/go_ekman6_distilbert_seeds.json
+  scorecard   results/go_ekman6_distilbert_seeds_scorecard.csv
+  per_emotion results/go_ekman6_distilbert_seeds_per_emotion.csv
+  summary     results/go_ekman6_distilbert_seeds_summary.csv

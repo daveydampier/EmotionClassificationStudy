@@ -1,0 +1,202 @@
+[
+  {
+    "model": "naive_bayes_bow",
+    "dataset": "go_emotions",
+    "macro_f1": 0.4158015738076721,
+    "micro_f1": 0.5706966366415999,
+    "subset_accuracy": 0.4230698360051594,
+    "ece": 0.05570627590776506,
+    "train_seconds": 1.2149608999607153,
+    "predict_latency_ms": 0.017655076469689942,
+    "throughput": 56640.93280574513,
+    "model_size_mb": 14.827703475952148,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "anger": 0.4134742404227213,
+      "disgust": 0.1990521327014218,
+      "fear": 0.1566265060240964,
+      "joy": 0.727867320719458,
+      "sadness": 0.39452054794520547,
+      "surprise": 0.4401650618982118,
+      "neutral": 0.5789052069425901
+    },
+    "per_label_support": {
+      "anger": 726,
+      "disgust": 123,
+      "fear": 98,
+      "joy": 2104,
+      "sadness": 379,
+      "surprise": 677,
+      "neutral": 1787
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "ekman6",
+      "features": "bow"
+    }
+  },
+  {
+    "model": "logreg_bow",
+    "dataset": "go_emotions",
+    "macro_f1": 0.5570123288735581,
+    "micro_f1": 0.6253710984514161,
+    "subset_accuracy": 0.47392666298138936,
+    "ece": 0.013214994769690373,
+    "train_seconds": 7.090611200022977,
+    "predict_latency_ms": 0.016873650269894166,
+    "throughput": 59263.99943136146,
+    "model_size_mb": 4.146479606628418,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "anger": 0.4641724793912492,
+      "disgust": 0.4728682170542636,
+      "fear": 0.5658536585365853,
+      "joy": 0.7674305216967333,
+      "sadness": 0.5228426395939086,
+      "surprise": 0.4736129905277402,
+      "neutral": 0.6323057953144267
+    },
+    "per_label_support": {
+      "anger": 726,
+      "disgust": 123,
+      "fear": 98,
+      "joy": 2104,
+      "sadness": 379,
+      "surprise": 677,
+      "neutral": 1787
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "ekman6",
+      "features": "bow"
+    }
+  },
+  {
+    "model": "linsvm_bow",
+    "dataset": "go_emotions",
+    "macro_f1": 0.31881852968269947,
+    "micro_f1": 0.49279341111873715,
+    "subset_accuracy": 0.359314538419016,
+    "ece": 0.013821741118505648,
+    "train_seconds": 9.087549100047909,
+    "predict_latency_ms": 0.01974046435045816,
+    "throughput": 50657.369667030696,
+    "model_size_mb": 9.495125770568848,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "anger": 0.12090680100755667,
+      "disgust": 0.13533834586466165,
+      "fear": 0.3870967741935484,
+      "joy": 0.7392550143266475,
+      "sadness": 0.2948717948717949,
+      "surprise": 0.15243101182654403,
+      "neutral": 0.40182996568814333
+    },
+    "per_label_support": {
+      "anger": 726,
+      "disgust": 123,
+      "fear": 98,
+      "joy": 2104,
+      "sadness": 379,
+      "surprise": 677,
+      "neutral": 1787
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "ekman6",
+      "features": "bow"
+    }
+  },
+  {
+    "model": "random_forest_bow",
+    "dataset": "go_emotions",
+    "macro_f1": 0.357198470822429,
+    "micro_f1": 0.5526813880126183,
+    "subset_accuracy": 0.42491247466371845,
+    "ece": 0.007946897912078107,
+    "train_seconds": 97.65425249998225,
+    "predict_latency_ms": 0.1360803206153667,
+    "throughput": 7348.601145837367,
+    "model_size_mb": 2164.860330581665,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "anger": 0.25749167591564925,
+      "disgust": 0.20408163265306123,
+      "fear": 0.18518518518518517,
+      "joy": 0.7487370380218027,
+      "sadness": 0.3643724696356275,
+      "surprise": 0.18337408312958436,
+      "neutral": 0.5571472112160927
+    },
+    "per_label_support": {
+      "anger": 726,
+      "disgust": 123,
+      "fear": 98,
+      "joy": 2104,
+      "sadness": 379,
+      "surprise": 677,
+      "neutral": 1787
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "ekman6",
+      "features": "bow"
+    }
+  }
+]

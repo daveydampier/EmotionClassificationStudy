@@ -1,0 +1,140 @@
+[
+  {
+    "model": "hf_distilbert-base-uncased",
+    "dataset": "go_emotions",
+    "macro_f1": 0.6779456058019989,
+    "micro_f1": 0.7075380420441552,
+    "subset_accuracy": 0.6322093237516123,
+    "ece": 0.04763916460540313,
+    "train_seconds": 79.43135125562549,
+    "predict_latency_ms": 0.26033986349538124,
+    "throughput": 3841.1328429452806,
+    "model_size_mb": 255.45835781097412,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "positive": 0.8238180196253345,
+      "negative": 0.6809045226130653,
+      "ambiguous": 0.5980611483967189,
+      "neutral": 0.6089987325728771
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "sentiment3",
+      "features": "tfidf",
+      "epochs": null,
+      "test_dataset": "go_emotions"
+    }
+  },
+  {
+    "model": "hf_distilbert-base-uncased",
+    "dataset": "go_emotions",
+    "macro_f1": 0.6823247451067441,
+    "micro_f1": 0.7109154929577465,
+    "subset_accuracy": 0.640501197715128,
+    "ece": 0.045661440852194285,
+    "train_seconds": 77.68305370211601,
+    "predict_latency_ms": 0.2600691473976077,
+    "throughput": 3845.131227623653,
+    "model_size_mb": 255.45835781097412,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "positive": 0.8221268478779208,
+      "negative": 0.6793986184477855,
+      "ambiguous": 0.5811836115326252,
+      "neutral": 0.6465899025686448
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 43,
+      "schema": "sentiment3",
+      "features": "tfidf",
+      "epochs": null,
+      "test_dataset": "go_emotions"
+    }
+  },
+  {
+    "model": "hf_distilbert-base-uncased",
+    "dataset": "go_emotions",
+    "macro_f1": 0.6839369103755767,
+    "micro_f1": 0.709915611814346,
+    "subset_accuracy": 0.6368159203980099,
+    "ece": 0.04398674542385916,
+    "train_seconds": 78.07173205912113,
+    "predict_latency_ms": 0.2536896011470013,
+    "throughput": 3941.824952535388,
+    "model_size_mb": 255.45835781097412,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "positive": 0.816551064338675,
+      "negative": 0.6910755148741419,
+      "ambiguous": 0.5936507936507937,
+      "neutral": 0.634470268638696
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "sentiment3",
+      "features": "tfidf",
+      "epochs": null,
+      "test_dataset": "go_emotions"
+    }
+  }
+]

@@ -1,0 +1,13 @@
+model,dataset,schema,seed,emotion,f1,f1_low,f1_high,support
+hf_distilbert-base-uncased,go_emotions,sentiment3,42,positive,0.8238180196253345,,,2104
+hf_distilbert-base-uncased,go_emotions,sentiment3,42,negative,0.6809045226130653,,,1262
+hf_distilbert-base-uncased,go_emotions,sentiment3,42,ambiguous,0.5980611483967189,,,677
+hf_distilbert-base-uncased,go_emotions,sentiment3,42,neutral,0.6089987325728771,,,1787
+hf_distilbert-base-uncased,go_emotions,sentiment3,43,positive,0.8221268478779208,,,2104
+hf_distilbert-base-uncased,go_emotions,sentiment3,43,negative,0.6793986184477855,,,1262
+hf_distilbert-base-uncased,go_emotions,sentiment3,43,ambiguous,0.5811836115326252,,,677
+hf_distilbert-base-uncased,go_emotions,sentiment3,43,neutral,0.6465899025686448,,,1787
+hf_distilbert-base-uncased,go_emotions,sentiment3,44,positive,0.816551064338675,,,2104
+hf_distilbert-base-uncased,go_emotions,sentiment3,44,negative,0.6910755148741419,,,1262
+hf_distilbert-base-uncased,go_emotions,sentiment3,44,ambiguous,0.5936507936507937,,,677
+hf_distilbert-base-uncased,go_emotions,sentiment3,44,neutral,0.634470268638696,,,1787

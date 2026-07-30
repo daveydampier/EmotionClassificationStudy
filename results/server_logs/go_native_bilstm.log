@@ -1,0 +1,16 @@
+Loading go_emotions (schema=native, features=tfidf) ...
+  train=43410  test=5427  n_labels=28
+
+=== bilstm ===
+  macro_f1=0.251  micro_f1=0.464  ece=0.004  train=13.7s  latency=0.02ms  thrpt=43354/s  size=14.2MB  device=cuda:0
+
+## Raw scorecard
+
+| model | dataset | macro_f1 | micro_f1 | subset_accuracy | ece | train_seconds | predict_latency_ms | throughput | model_size_mb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| bilstm | go_emotions | 0.2513 | 0.4636 | 0.3311 | 0.003904 | 13.69 | 0.02307 | 4.335e+04 | 14.2 |
+
+Saved results:
+  json        results/go_native_bilstm.json
+  scorecard   results/go_native_bilstm_scorecard.csv
+  per_emotion results/go_native_bilstm_per_emotion.csv

@@ -1,0 +1,13 @@
+model,dataset,schema,seed,emotion,f1,f1_low,f1_high,support
+bilstm,go_emotions,sentiment3,42,positive,0.7735986411065275,,,2104
+bilstm,go_emotions,sentiment3,42,negative,0.581901489117984,,,1262
+bilstm,go_emotions,sentiment3,42,ambiguous,0.38817733990147785,,,677
+bilstm,go_emotions,sentiment3,42,neutral,0.5295238095238095,,,1787
+bilstm,go_emotions,sentiment3,43,positive,0.7716917111003393,,,2104
+bilstm,go_emotions,sentiment3,43,negative,0.5734136174154701,,,1262
+bilstm,go_emotions,sentiment3,43,ambiguous,0.4367034834324554,,,677
+bilstm,go_emotions,sentiment3,43,neutral,0.5904317386231038,,,1787
+bilstm,go_emotions,sentiment3,44,positive,0.7697680219506111,,,2104
+bilstm,go_emotions,sentiment3,44,negative,0.5472589792060492,,,1262
+bilstm,go_emotions,sentiment3,44,ambiguous,0.43636363636363634,,,677
+bilstm,go_emotions,sentiment3,44,neutral,0.6184351554126474,,,1787

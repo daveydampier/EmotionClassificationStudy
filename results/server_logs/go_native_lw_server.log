@@ -1,0 +1,37 @@
+Loading go_emotions (schema=native, features=tfidf) ...
+  train=43410  test=5427  n_labels=28
+
+=== naive_bayes ===
+  macro_f1=0.129  micro_f1=0.293  ece=0.033  train=0.8s  latency=0.01ms  thrpt=75418/s  size=55.3MB  device=cpu
+
+=== logreg ===
+  macro_f1=0.439  micro_f1=0.498  ece=0.063  train=3.8s  latency=0.01ms  thrpt=90864/s  size=12.5MB  device=cpu
+
+=== linsvm ===
+  macro_f1=0.299  micro_f1=0.433  ece=0.004  train=13.6s  latency=0.02ms  thrpt=56982/s  size=33.9MB  device=cpu
+
+=== random_forest ===
+  macro_f1=0.177  micro_f1=0.371  ece=0.003  train=35.2s  latency=0.39ms  thrpt=2535/s  size=3400.2MB  device=cpu
+
+## Raw scorecard
+
+| model | dataset | macro_f1 | micro_f1 | subset_accuracy | ece | train_seconds | predict_latency_ms | throughput | model_size_mb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| naive_bayes_tfidf | go_emotions | 0.1289 | 0.2927 | 0.1985 | 0.0334 | 0.7735 | 0.01326 | 7.542e+04 | 55.27 |
+| logreg_tfidf | go_emotions | 0.4385 | 0.4977 | 0.2419 | 0.06297 | 3.751 | 0.01101 | 9.086e+04 | 12.55 |
+| linsvm_tfidf | go_emotions | 0.299 | 0.4333 | 0.288 | 0.003815 | 13.65 | 0.01755 | 5.698e+04 | 33.94 |
+| random_forest_tfidf | go_emotions | 0.1773 | 0.3706 | 0.2383 | 0.00301 | 35.18 | 0.3945 | 2535 | 3400 |
+
+## Normalized (1 = best per axis)
+
+| model | macro_f1 | micro_f1 | subset_accuracy | ece | train_seconds | predict_latency_ms | throughput | model_size_mb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| naive_bayes_tfidf | 0.000 | 0.000 | 0.000 | 0.493 | 1.000 | 0.994 | 0.825 | 0.987 |
+| logreg_tfidf | 1.000 | 1.000 | 0.486 | 0.000 | 0.913 | 1.000 | 1.000 | 1.000 |
+| linsvm_tfidf | 0.549 | 0.686 | 1.000 | 0.987 | 0.626 | 0.983 | 0.616 | 0.994 |
+| random_forest_tfidf | 0.157 | 0.380 | 0.444 | 1.000 | 0.000 | 0.000 | 0.000 | 0.000 |
+
+Saved results:
+  json        results/go_native_lw_server.json
+  scorecard   results/go_native_lw_server_scorecard.csv
+  per_emotion results/go_native_lw_server_per_emotion.csv

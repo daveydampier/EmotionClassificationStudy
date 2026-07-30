@@ -1,0 +1,5 @@
+model,dataset,schema,seed,emotion,f1,f1_low,f1_high,support
+bilstm,go_emotions,sentiment3,42,positive,0.7735986411065275,,,2104
+bilstm,go_emotions,sentiment3,42,negative,0.581901489117984,,,1262
+bilstm,go_emotions,sentiment3,42,ambiguous,0.38817733990147785,,,677
+bilstm,go_emotions,sentiment3,42,neutral,0.5295238095238095,,,1787

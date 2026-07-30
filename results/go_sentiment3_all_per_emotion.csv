@@ -1,0 +1,17 @@
+model,dataset,schema,seed,emotion,f1,support
+naive_bayes_tfidf,go_emotions,sentiment3,42,positive,0.7209243908565687,2104
+naive_bayes_tfidf,go_emotions,sentiment3,42,negative,0.47052845528455284,1262
+naive_bayes_tfidf,go_emotions,sentiment3,42,ambiguous,0.24395604395604395,677
+naive_bayes_tfidf,go_emotions,sentiment3,42,neutral,0.5041077883667433,1787
+logreg_tfidf,go_emotions,sentiment3,42,positive,0.7719990140497904,2104
+logreg_tfidf,go_emotions,sentiment3,42,negative,0.6203473945409429,1262
+logreg_tfidf,go_emotions,sentiment3,42,ambiguous,0.49574588769143507,677
+logreg_tfidf,go_emotions,sentiment3,42,neutral,0.6408762526217665,1787
+linsvm_tfidf,go_emotions,sentiment3,42,positive,0.7610030706243602,2104
+linsvm_tfidf,go_emotions,sentiment3,42,negative,0.5212876427829699,1262
+linsvm_tfidf,go_emotions,sentiment3,42,ambiguous,0.2834285714285714,677
+linsvm_tfidf,go_emotions,sentiment3,42,neutral,0.49433573635427397,1787
+random_forest_tfidf,go_emotions,sentiment3,42,positive,0.7455273698264352,2104
+random_forest_tfidf,go_emotions,sentiment3,42,negative,0.43577981651376146,1262
+random_forest_tfidf,go_emotions,sentiment3,42,ambiguous,0.15762273901808785,677
+random_forest_tfidf,go_emotions,sentiment3,42,neutral,0.5387096774193548,1787

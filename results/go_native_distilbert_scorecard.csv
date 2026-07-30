@@ -1,0 +1,2 @@
+model,dataset,schema,features,device,macro_f1,macro_f1_low,macro_f1_high,micro_f1,micro_f1_low,micro_f1_high,subset_accuracy,ece,train_seconds,predict_latency_ms,throughput,model_size_mb,cost_usd,n_train,n_test,n_labels,seed
+hf_distilbert-base-uncased,go_emotions,native,tfidf,cuda:0,0.4520113773526262,0.43133548302803604,0.4688235549570558,0.5657684724439019,0.5536733656013753,0.5784080081419716,0.4403906393956145,0.003966630559233039,78.96264489740133,0.2589110214340768,3862.3307515497836,255.52873134613037,,43410,5427,28,42

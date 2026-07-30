@@ -1,0 +1,31 @@
+Some weights of BertForSequenceClassification were not initialized from the model checkpoint at bert-base-uncased and are newly initialized: ['classifier.bias', 'classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Some weights of BertForSequenceClassification were not initialized from the model checkpoint at bert-base-uncased and are newly initialized: ['classifier.bias', 'classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Some weights of BertForSequenceClassification were not initialized from the model checkpoint at bert-base-uncased and are newly initialized: ['classifier.bias', 'classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Loading go_emotions (schema=native, features=tfidf) ...
+  train=43410  test=5427  n_labels=28
+
+=== hf_bert-base-uncased ===
+  [seed 42] macro_f1=0.432  micro_f1=0.571  ece=0.004  train=146.4s  latency=0.43ms  thrpt=2347/s  size=417.8MB  device=cuda:0
+  [seed 43] macro_f1=0.456  micro_f1=0.592  ece=0.002  train=145.2s  latency=0.43ms  thrpt=2340/s  size=417.8MB  device=cuda:0
+  [seed 44] macro_f1=0.434  micro_f1=0.569  ece=0.002  train=145.0s  latency=0.43ms  thrpt=2351/s  size=417.8MB  device=cuda:0
+
+## Raw scorecard
+
+| model | dataset | macro_f1 | micro_f1 | subset_accuracy | ece | train_seconds | predict_latency_ms | throughput | model_size_mb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hf_bert-base-uncased | go_emotions | 0.4323 | 0.5712 | 0.4555 | 0.004107 | 146.4 | 0.4262 | 2347 | 417.8 |
+| hf_bert-base-uncased | go_emotions | 0.4556 | 0.5922 | 0.4806 | 0.002306 | 145.2 | 0.4274 | 2340 | 417.8 |
+| hf_bert-base-uncased | go_emotions | 0.4343 | 0.5687 | 0.4531 | 0.002339 | 145 | 0.4254 | 2351 | 417.8 |
+
+## Multi-seed summary (mean +/- std over 3 seeds)
+
+  hf_bert-base-uncased:  macro_f1=0.441+/-0.013  micro_f1=0.577+/-0.013  train=145.5+/-0.8s  size=417.8MB
+
+Saved results:
+  json        results/go_native_bert_seeds.json
+  scorecard   results/go_native_bert_seeds_scorecard.csv
+  per_emotion results/go_native_bert_seeds_per_emotion.csv
+  summary     results/go_native_bert_seeds_summary.csv

@@ -1,0 +1,18 @@
+Some weights of BertForSequenceClassification were not initialized from the model checkpoint at bert-base-uncased and are newly initialized: ['classifier.bias', 'classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Loading go_emotions (schema=native, features=tfidf) ...
+  train=43410  test=5427  n_labels=28
+
+=== hf_bert-base-uncased ===
+  macro_f1=0.480  micro_f1=0.569  ece=0.013  train=242.6s  latency=0.43ms  thrpt=2350/s  size=417.8MB  device=cuda:0
+
+## Raw scorecard
+
+| model | dataset | macro_f1 | micro_f1 | subset_accuracy | ece | train_seconds | predict_latency_ms | throughput | model_size_mb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hf_bert-base-uncased | go_emotions | 0.4798 | 0.5692 | 0.4549 | 0.01326 | 242.6 | 0.4256 | 2350 | 417.8 |
+
+Saved results:
+  json        results/go_native_bert_ep5.json
+  scorecard   results/go_native_bert_ep5_scorecard.csv
+  per_emotion results/go_native_bert_ep5_per_emotion.csv

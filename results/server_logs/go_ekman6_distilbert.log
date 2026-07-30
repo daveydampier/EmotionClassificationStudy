@@ -1,0 +1,18 @@
+Some weights of DistilBertForSequenceClassification were not initialized from the model checkpoint at distilbert-base-uncased and are newly initialized: ['classifier.bias', 'classifier.weight', 'pre_classifier.bias', 'pre_classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+Loading go_emotions (schema=ekman6, features=tfidf) ...
+  train=43410  test=5427  n_labels=7
+
+=== hf_distilbert ===
+  macro_f1=0.602  micro_f1=0.693  ece=0.027  train=79.3s  latency=0.26ms  thrpt=3826/s  size=255.5MB  device=cuda:0
+
+## Raw scorecard
+
+| model | dataset | macro_f1 | micro_f1 | subset_accuracy | ece | train_seconds | predict_latency_ms | throughput | model_size_mb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| hf_distilbert-base-uncased | go_emotions | 0.6021 | 0.693 | 0.6125 | 0.02689 | 79.29 | 0.2614 | 3826 | 255.5 |
+
+Saved results:
+  json        results/go_ekman6_distilbert.json
+  scorecard   results/go_ekman6_distilbert_scorecard.csv
+  per_emotion results/go_ekman6_distilbert_per_emotion.csv

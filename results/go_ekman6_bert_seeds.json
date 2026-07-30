@@ -1,0 +1,167 @@
+[
+  {
+    "model": "hf_bert-base-uncased",
+    "dataset": "go_emotions",
+    "macro_f1": 0.6027378416747439,
+    "micro_f1": 0.6878824969400245,
+    "subset_accuracy": 0.6065966463976414,
+    "ece": 0.030410436287406396,
+    "train_seconds": 146.94324384257197,
+    "predict_latency_ms": 0.42577777335892864,
+    "throughput": 2348.643030637968,
+    "model_size_mb": 417.73978900909424,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "anger": 0.5347432024169184,
+      "disgust": 0.4,
+      "fear": 0.6597938144329897,
+      "joy": 0.8247119392007846,
+      "sadness": 0.6052631578947368,
+      "surprise": 0.5190972222222222,
+      "neutral": 0.6755555555555556
+    },
+    "per_label_support": {
+      "anger": 726,
+      "disgust": 123,
+      "fear": 98,
+      "joy": 2104,
+      "sadness": 379,
+      "surprise": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": null,
+      "test_dataset": "go_emotions"
+    }
+  },
+  {
+    "model": "hf_bert-base-uncased",
+    "dataset": "go_emotions",
+    "macro_f1": 0.6129705325194112,
+    "micro_f1": 0.6807907100434358,
+    "subset_accuracy": 0.6025428413488115,
+    "ece": 0.03180980623782867,
+    "train_seconds": 145.37225238233805,
+    "predict_latency_ms": 0.4250315325693331,
+    "throughput": 2352.7666146437628,
+    "model_size_mb": 417.73978900909424,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "anger": 0.5360524399126001,
+      "disgust": 0.4819277108433735,
+      "fear": 0.6432748538011696,
+      "joy": 0.8280195485222248,
+      "sadness": 0.5956204379562043,
+      "surprise": 0.5865237366003063,
+      "neutral": 0.619375
+    },
+    "per_label_support": {
+      "anger": 726,
+      "disgust": 123,
+      "fear": 98,
+      "joy": 2104,
+      "sadness": 379,
+      "surprise": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 43,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": null,
+      "test_dataset": "go_emotions"
+    }
+  },
+  {
+    "model": "hf_bert-base-uncased",
+    "dataset": "go_emotions",
+    "macro_f1": 0.619363382009318,
+    "micro_f1": 0.6808287437713086,
+    "subset_accuracy": 0.603648424543947,
+    "ece": 0.034587034310014295,
+    "train_seconds": 145.07152277231216,
+    "predict_latency_ms": 0.43017950896753754,
+    "throughput": 2324.610956946958,
+    "model_size_mb": 417.73978900909424,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "anger": 0.5476190476190477,
+      "disgust": 0.49056603773584906,
+      "fear": 0.6504854368932039,
+      "joy": 0.8308128544423441,
+      "sadness": 0.6028169014084507,
+      "surprise": 0.6024799416484318,
+      "neutral": 0.6107634543178974
+    },
+    "per_label_support": {
+      "anger": 726,
+      "disgust": 123,
+      "fear": 98,
+      "joy": 2104,
+      "sadness": 379,
+      "surprise": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": null,
+      "test_dataset": "go_emotions"
+    }
+  }
+]

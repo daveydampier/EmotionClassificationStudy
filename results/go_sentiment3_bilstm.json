@@ -1,0 +1,46 @@
+[
+  {
+    "model": "bilstm",
+    "dataset": "go_emotions",
+    "macro_f1": 0.5683003199124497,
+    "micro_f1": 0.6211829436038514,
+    "subset_accuracy": 0.5297586143357288,
+    "ece": 0.07042171318347781,
+    "train_seconds": 13.338509056717157,
+    "predict_latency_ms": 0.022353345306182798,
+    "throughput": 44736.03330072507,
+    "model_size_mb": 14.174283027648926,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "positive": 0.7735986411065275,
+      "negative": 0.581901489117984,
+      "ambiguous": 0.38817733990147785,
+      "neutral": 0.5295238095238095
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": null,
+    "micro_f1_ci": null,
+    "per_label_f1_ci": {},
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "sentiment3",
+      "features": "tfidf"
+    }
+  }
+]

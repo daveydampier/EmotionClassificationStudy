@@ -1,0 +1,25 @@
+Loading go_emotions (schema=ekman6, features=tfidf) ...
+  train=43410  test=5427  n_labels=7
+
+=== bilstm ===
+  [seed 42] macro_f1=0.488  micro_f1=0.597  ece=0.027  train=13.5s  latency=0.02ms  thrpt=44550/s  size=14.2MB  device=cuda:0
+  [seed 43] macro_f1=0.510  micro_f1=0.617  ece=0.026  train=12.3s  latency=0.02ms  thrpt=44229/s  size=14.2MB  device=cuda:0
+  [seed 44] macro_f1=0.491  micro_f1=0.618  ece=0.030  train=12.2s  latency=0.02ms  thrpt=44686/s  size=14.2MB  device=cuda:0
+
+## Raw scorecard
+
+| model | dataset | macro_f1 | micro_f1 | subset_accuracy | ece | train_seconds | predict_latency_ms | throughput | model_size_mb |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| bilstm | go_emotions | 0.4877 | 0.5975 | 0.4992 | 0.02728 | 13.54 | 0.02245 | 4.455e+04 | 14.18 |
+| bilstm | go_emotions | 0.5099 | 0.6174 | 0.5178 | 0.02623 | 12.35 | 0.02261 | 4.423e+04 | 14.18 |
+| bilstm | go_emotions | 0.4914 | 0.6185 | 0.5193 | 0.03041 | 12.18 | 0.02238 | 4.469e+04 | 14.18 |
+
+## Multi-seed summary (mean +/- std over 3 seeds)
+
+  bilstm:  macro_f1=0.496+/-0.012  micro_f1=0.611+/-0.012  train=12.7+/-0.7s  size=14.2MB
+
+Saved results:
+  json        results/go_ekman6_bilstm_seeds.json
+  scorecard   results/go_ekman6_bilstm_seeds_scorecard.csv
+  per_emotion results/go_ekman6_bilstm_seeds_per_emotion.csv
+  summary     results/go_ekman6_bilstm_seeds_summary.csv
