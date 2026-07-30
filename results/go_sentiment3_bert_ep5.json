@@ -1,0 +1,71 @@
+[
+  {
+    "model": "hf_bert-base-uncased",
+    "dataset": "go_emotions",
+    "macro_f1": 0.66064625496504,
+    "micro_f1": 0.694067067927773,
+    "subset_accuracy": 0.6139672010318776,
+    "ece": 0.10628480323643366,
+    "train_seconds": 242.82789188623428,
+    "predict_latency_ms": 0.4169061314572018,
+    "throughput": 2398.6214750661607,
+    "model_size_mb": 417.73099994659424,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "positive": 0.8143322475570033,
+      "negative": 0.685118619698059,
+      "ambiguous": 0.5382830626450116,
+      "neutral": 0.604851089960086
+    },
+    "per_label_support": {
+      "positive": 2104,
+      "negative": 1262,
+      "ambiguous": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": [
+      0.6484509572930754,
+      0.6730775932529407
+    ],
+    "micro_f1_ci": [
+      0.683357643779748,
+      0.704902346868426
+    ],
+    "per_label_f1_ci": {
+      "positive": [
+        0.8015574063284127,
+        0.8265809800772193
+      ],
+      "negative": [
+        0.6654273842052326,
+        0.7045385671192351
+      ],
+      "ambiguous": [
+        0.505048290352096,
+        0.5714339299110491
+      ],
+      "neutral": [
+        0.584288510145385,
+        0.6244750674252417
+      ]
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 4,
+      "labels": [
+        "positive",
+        "negative",
+        "ambiguous",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "sentiment3",
+      "features": "tfidf",
+      "epochs": 5,
+      "test_dataset": "go_emotions"
+    }
+  }
+]

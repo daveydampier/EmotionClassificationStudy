@@ -1,0 +1,92 @@
+[
+  {
+    "model": "hf_bert-base-uncased",
+    "dataset": "go_emotions",
+    "macro_f1": 0.5987478074427816,
+    "micro_f1": 0.6672911521757643,
+    "subset_accuracy": 0.5852220379583564,
+    "ece": 0.06411088102221904,
+    "train_seconds": 241.4110663831234,
+    "predict_latency_ms": 0.4229231761407738,
+    "throughput": 2364.495625718892,
+    "model_size_mb": 417.73978900909424,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "anger": 0.5329707681849082,
+      "disgust": 0.451063829787234,
+      "fear": 0.6378378378378379,
+      "joy": 0.812926718252162,
+      "sadness": 0.5768115942028985,
+      "surprise": 0.5654885654885655,
+      "neutral": 0.6141353383458646
+    },
+    "per_label_support": {
+      "anger": 726,
+      "disgust": 123,
+      "fear": 98,
+      "joy": 2104,
+      "sadness": 379,
+      "surprise": 677,
+      "neutral": 1787
+    },
+    "macro_f1_ci": [
+      0.5786924677439073,
+      0.6166815491939309
+    ],
+    "micro_f1_ci": [
+      0.65623236727366,
+      0.6781311789721475
+    ],
+    "per_label_f1_ci": {
+      "anger": [
+        0.5017726592733086,
+        0.5611448633507458
+      ],
+      "disgust": [
+        0.36767510894966215,
+        0.5263266190166774
+      ],
+      "fear": [
+        0.553654037886341,
+        0.712214317976513
+      ],
+      "joy": [
+        0.800366279449194,
+        0.8255119955481258
+      ],
+      "sadness": [
+        0.5327373998664886,
+        0.618294028188322
+      ],
+      "surprise": [
+        0.5329592273888889,
+        0.5965667185877466
+      ],
+      "neutral": [
+        0.5940642205591539,
+        0.6327667169782888
+      ]
+    },
+    "meta": {
+      "n_train": 43410,
+      "n_test": 5427,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 42,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": 5,
+      "test_dataset": "go_emotions"
+    }
+  }
+]

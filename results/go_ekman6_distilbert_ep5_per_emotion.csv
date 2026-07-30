@@ -1,0 +1,8 @@
+model,dataset,schema,seed,emotion,f1,f1_low,f1_high,support
+hf_distilbert-base-uncased,go_emotions,ekman6,42,anger,0.55,0.5182263580688777,0.5806123527643895,726
+hf_distilbert-base-uncased,go_emotions,ekman6,42,disgust,0.44660194174757284,0.3608205171539632,0.5279187817258884,123
+hf_distilbert-base-uncased,go_emotions,ekman6,42,fear,0.5930232558139535,0.5054497354497355,0.671210242194339,98
+hf_distilbert-base-uncased,go_emotions,ekman6,42,joy,0.8052181736392263,0.7930272727835348,0.8180420596392557,2104
+hf_distilbert-base-uncased,go_emotions,ekman6,42,sadness,0.5585585585585585,0.5102794306730856,0.601449173994138,379
+hf_distilbert-base-uncased,go_emotions,ekman6,42,surprise,0.5164556962025316,0.48109425500792685,0.5508283906421315,677
+hf_distilbert-base-uncased,go_emotions,ekman6,42,neutral,0.6209364747986877,0.6022903821609106,0.6391650632529017,1787

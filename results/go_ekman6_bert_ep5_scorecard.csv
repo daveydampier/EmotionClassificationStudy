@@ -1,0 +1,2 @@
+model,dataset,schema,features,device,macro_f1,macro_f1_low,macro_f1_high,micro_f1,micro_f1_low,micro_f1_high,subset_accuracy,ece,train_seconds,predict_latency_ms,throughput,model_size_mb,cost_usd,n_train,n_test,n_labels,seed
+hf_bert-base-uncased,go_emotions,ekman6,tfidf,cuda:0,0.5987478074427816,0.5786924677439073,0.6166815491939309,0.6672911521757643,0.65623236727366,0.6781311789721475,0.5852220379583564,0.06411088102221904,241.4110663831234,0.4229231761407738,2364.495625718892,417.73978900909424,,43410,5427,7,42

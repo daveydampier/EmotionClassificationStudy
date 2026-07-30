@@ -1,0 +1,15 @@
+model,dataset,schema,seed,emotion,f1,f1_low,f1_high,support
+hf_distilbert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,anger,0.3949129852744311,0.36322205795147156,0.4265257512716201,1101
+hf_distilbert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,disgust,0.028622540250447227,0.014922266558051558,0.0422031270189947,1099
+hf_distilbert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,fear,0.24866785079928952,0.20311933876811594,0.2970419769249652,485
+hf_distilbert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,joy,0.6521239954075775,0.6317323001788409,0.6736922001398182,1669
+hf_distilbert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,sadness,0.3043824701195219,0.27367938562985006,0.33721879213682493,1049
+hf_distilbert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,surprise,0.12149532710280374,0.06390534369986427,0.1893595679012345,170
+hf_distilbert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,neutral,0.0,0.0,0.0,0
+hf_bert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,anger,0.4065934065934066,0.37429964343372163,0.43719671416813255,1101
+hf_bert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,disgust,0.04951370468611848,0.03174307862679956,0.06806580199904808,1099
+hf_bert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,fear,0.3388704318936877,0.28872970420143956,0.386578256302521,485
+hf_bert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,joy,0.6788239672497208,0.6588691674541545,0.6989177663993817,1669
+hf_bert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,sadness,0.38661710037174724,0.35311354423374375,0.42066828621210606,1049
+hf_bert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,surprise,0.22393822393822393,0.1506119246861925,0.2907833655705996,170
+hf_bert-base-uncased,go_emotions->sem_eval_2018_task_1,ekman6,42,neutral,0.0,0.0,0.0,0

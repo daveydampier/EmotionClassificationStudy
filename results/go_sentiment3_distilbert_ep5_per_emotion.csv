@@ -1,0 +1,5 @@
+model,dataset,schema,seed,emotion,f1,f1_low,f1_high,support
+hf_distilbert-base-uncased,go_emotions,sentiment3,42,positive,0.8118151500714627,0.7991396429324943,0.8243030909076007,2104
+hf_distilbert-base-uncased,go_emotions,sentiment3,42,negative,0.6710679611650485,0.6504632693212301,0.6918145929339478,1262
+hf_distilbert-base-uncased,go_emotions,sentiment3,42,ambiguous,0.5836972343522562,0.5524615203580956,0.616290446599504,677
+hf_distilbert-base-uncased,go_emotions,sentiment3,42,neutral,0.6148018648018648,0.5961100908243747,0.6333333333333333,1787
