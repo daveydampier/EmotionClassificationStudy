@@ -13,21 +13,23 @@ you can read a stem, you can find any number in the paper.
 ## 1. How a filename is built
 
 ```
-go_native_crosstier_scorecard.csv
-│  │      │         └── artifact type  (what kind of file)
-│  │      └────────────── run group     (which experiment)
-│  └───────────────────── label schema  (how many emotion classes)
-└──────────────────────── dataset       (go = GoEmotions)
+go_native_final_scorecard.csv
+│  │      │      └── artifact type  (what kind of file)
+│  │      └───────── run group      (which experiment)
+│  └──────────────── label schema   (how many emotion classes)
+└─────────────────── dataset        (go = GoEmotions)
 ```
 
 Cross-dataset files use an arrow-style stem instead: `xdata_go2semeval` = trained on
-GoEmotions, tested on SemEval-2018.
+GoEmotions, tested on SemEval-2018 (and `xdata_semeval2go` is the reverse).
 
 ### 1a. Dataset prefix
 | Token | Meaning |
 |---|---|
 | `go_` | GoEmotions (primary corpus, Reddit, 43,410 train / 5,427 test) |
-| `xdata_go2semeval` | Cross-dataset transfer: train GoEmotions → test SemEval-2018 (tweets), shared Ekman-6 space |
+| `sem_` | In-domain SemEval-2018 (tweets, 6,838 train / 3,259 test); e.g. `sem_ekman6` = train+test on SemEval — the reverse-transfer baseline |
+| `xdata_go2semeval` | Cross-dataset transfer: train GoEmotions → test SemEval-2018, shared Ekman-6 space |
+| `xdata_semeval2go` | **Reverse** transfer: train SemEval-2018 → test GoEmotions, shared Ekman-6 |
 | `gpu_smoke` | Tiny GPU sanity-check run — **not a result**, ignore for the paper |
 
 ### 1b. Label schema
@@ -45,12 +47,18 @@ GoEmotions, tested on SemEval-2018.
 | `bow` | The four classical models, **Bag-of-Words** features |
 | `features` | TF-IDF **vs** BoW side by side (8 classical rows) → feature comparison |
 | `bert` / `distilbert` / `bilstm` | A single model run |
-| `crosstier` | All **seven** models in one table (classical + BiLSTM + both transformers) |
-| `final` | The **headline** seven-model table + figures for the paper |
+| `final` | The **headline** seven-model table + figures for the paper (5-epoch transformers) |
+| `crosstier` | Earlier seven-model table with **3-epoch** transformers — **superseded by `final`**; kept for provenance, don't cite |
+| `reduced` | Matched-size control: GoEmotions train **subsampled to 6,838** (= SemEval size); see §3 |
 | `lw_server` | Lightweight (classical) tier re-run on the GPU server |
 | `seeds` | **Multi-seed** run (3 seeds) → adds mean±std for stochastic models |
 | `ep5` / `ep8` | Transformer trained for **5 / 8 epochs** → training-budget analysis |
 | `transformers_ep5_seeds` | Both transformers, 5 epochs, multi-seed (the fair, final transformer numbers) |
+
+**Modifiers** that can attach to a stem: `_ep5` (5-epoch transformers — the values to
+cite), and `_s43` / `_s44` (subsample seed for the `reduced` control; the unsuffixed
+`reduced` run is seed 42). Worked example — `xdata_go2semeval_reduced_s43_ep5` reads as:
+forward transfer (go→semeval) · matched-size subsample · seed 43 · 5-epoch.
 
 ### 1d. Artifact type (suffix)
 | Suffix | Contents |
@@ -67,13 +75,18 @@ GoEmotions, tested on SemEval-2018.
 
 | Paper element | File(s) |
 |---|---|
-| **Table 1** — main scorecard (7 models, native-27) | `go_native_final_scorecard.csv` (headline), `go_native_crosstier_scorecard.csv` |
+| **Table 1** — main scorecard (7 models, native-27) | `go_native_final_scorecard.csv` (headline; 5-epoch) |
 | **Table 2** — training-budget / epochs | `go_native_bert_ep5/ep8_scorecard.csv`, `go_native_distilbert_ep5/ep8_scorecard.csv`, `go_native_transformers_ep5_seeds_summary.csv` |
-| **Table 3** — cross-dataset transfer | `xdata_go2semeval_scorecard.csv`, `xdata_go2semeval_per_emotion.csv` |
-| **§4.4** — per-emotion F1 + CIs (rare emotions) | `go_native_final_per_emotion.csv` (widths grow as `support` falls) |
-| **§4.5** — granularity sweep (27 → 6 → 3) | `go_granularity_scorecard.csv`, `go_granularity_bow_scorecard.csv` |
-| **§4.6** — feature comparison (TF-IDF vs BoW) | `go_native_features_scorecard.csv` |
+| **Cross-dataset (§4.3/4.7)** — the corpus-specificity result, three regimes | **Full:** `xdata_go2semeval_per_emotion.csv` (classical) + `xdata_go2semeval_ep5_*` (transformers). **Matched-size:** `xdata_go2semeval_reduced_ep5_*` + `_s43` + `_s44`, with in-domain `go_ekman6_reduced_ep5_*`. **Reverse:** `xdata_semeval2go_ep5_*` + in-domain `sem_ekman6_ep5_*` |
+| **Per-emotion F1 + CIs (rare emotions)** | `go_native_final_per_emotion.csv` (widths grow as `support` falls) |
+| **Granularity sweep (27 → 6 → 3)** | `go_granularity_scorecard.csv` (classical); transformer 5-epoch points from `go_{native,ekman6,sentiment3}_{bert,distilbert}_ep5_scorecard.csv` |
+| **Feature comparison (TF-IDF vs BoW)** | `go_native_features_scorecard.csv` |
 | **Uncertainty (multi-seed)** | any `*_seeds_summary.csv` (mean±std) |
+
+> **Cross-dataset metric:** all transfer numbers are macro-F1 over the **6 shared Ekman
+> emotions, neutral excluded** (SemEval has no neutral). Lead with *absolute* cross-domain
+> F1, not retention (retention flatters the lightweight tier). The headline is that
+> transfer is **corpus/direction-specific, not a size effect** — see the paper's §4.3.
 
 > **Which transformer numbers are the "real" ones?** Use the **5-epoch** results
 > (`*_ep5_*`, `*_transformers_ep5_seeds_*`). The bare `go_native_bert`/`distilbert`
@@ -154,18 +167,24 @@ Named `go_<schema>_<group>_<plottype>.png`. Same schema/group tokens as above; t
 
 | Plot type | Shows | Paper role |
 |---|---|---|
-| `pareto` | efficiency ↔ accuracy trade-off frontier | the efficiency-cost story |
-| `pareto_size` / `pareto_train` | trade-off vs **model size** / vs **training time** (split view) | native cross-tier & final |
+| `pareto_size` / `pareto_train` | trade-off vs **model size** / vs **training time** | the efficiency-cost story |
 | `heatmap` | per-emotion F1 grid (models × emotions) | per-emotion behaviour |
 | `violin` | distribution of per-emotion F1 per model | spread across emotions |
-| `f1_vs_frequency` | per-emotion F1 vs support (with CIs) | rare-emotion imprecision (§4.4) |
+| `f1_vs_frequency` | per-emotion F1 vs support (with CIs) | rare-emotion imprecision |
 | `macro_f1` / `micro_f1` | line plots across conditions | granularity & feature sweeps |
 
 **The paper's headline figures** are the `go_native_final_*` set (pareto_size,
-pareto_train, heatmap, violin, f1_vs_frequency). The `go_native_crosstier_*` set is
-the same view from the full 7-model comparison. `_all` / `_bow` figures are the
-classical-only and BoW variants; `*_features_*` and `*_granularity_*` back §4.6 and
-§4.5.
+pareto_train, heatmap, violin, f1_vs_frequency) — 5-epoch, all seven models. `_all` /
+`_bow` figures are the classical-only and BoW variants; `*_features_*` and
+`*_granularity_*` back the feature and granularity sweeps.
+
+**`cross_dataset_transfer.png`** (special, not a `go_*` stem) — the corpus-specificity
+result: absolute cross-domain F1 for LogReg/DistilBERT/BERT across the three regimes
+(Full / Matched-size±std / Reverse). Generated by `scripts/make_crossdataset_figure.py`,
+not `make_figures.py`.
+
+> The old `go_native_crosstier_*` figures (3-epoch transformers) were **removed** — they
+> contradicted the 5-epoch tables. Use the `go_native_final_*` set.
 
 ---
 
@@ -181,7 +200,12 @@ and debugging. `run_m3_full.log` is the umbrella log for the final batch.
 - *"The main results table?"* → `go_native_final_scorecard.csv`
 - *"Did the transformer really only win by 0.045 macro-F1?"* → compare `logreg_tfidf`
   vs `hf_bert-base-uncased` rows in `go_native_final_scorecard.csv`
-- *"The cross-dataset headline (65% vs 36–43%)?"* → `xdata_go2semeval_scorecard.csv`
+- *"The cross-dataset result?"* → run `python scripts/make_crossdataset_figure.py` (prints
+  the numbers + writes the figure); or read the three regimes per §2. Headline: LogReg
+  leads from GoEmotions at full **and** matched size and is far more stable; the ordering
+  flips only from the SemEval source — corpus-specific, not size.
+- *"Is the matched-size flip real?"* → it isn't; compare `xdata_go2semeval_reduced_ep5`,
+  `_s43`, `_s44` — BERT's cross-F1 swings 0.34/0.30/0.24 while LogReg holds ~0.31.
 - *"Error bars on grief?"* → `go_native_final_per_emotion.csv`, row emotion=`grief`
 - *"3-epoch vs 5-epoch gap?"* → `go_native_bert_ep5_scorecard.csv` vs the 3-epoch
   `go_native_bert_scorecard.csv`
