@@ -1,0 +1,639 @@
+[
+  {
+    "model": "naive_bayes_tfidf",
+    "dataset": "go_emotions->sem_eval_2018_task_1",
+    "macro_f1": 0.2677380114859501,
+    "micro_f1": 0.385038961038961,
+    "subset_accuracy": 0.2428074612709453,
+    "ece": 0.04821555641000972,
+    "train_seconds": 0.10282716155052185,
+    "predict_latency_ms": 0.006549895384475245,
+    "throughput": 152674.19421235786,
+    "model_size_mb": 3.6137847900390625,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "anger": 0.31974110032362457,
+      "disgust": 0.1799561082662765,
+      "fear": 0.23850931677018633,
+      "joy": 0.7235256816740647,
+      "sadness": 0.2907608695652174,
+      "surprise": 0.12167300380228137,
+      "neutral": 0.0
+    },
+    "per_label_support": {
+      "anger": 1101,
+      "disgust": 1099,
+      "fear": 485,
+      "joy": 1669,
+      "sadness": 1049,
+      "surprise": 170,
+      "neutral": 0
+    },
+    "macro_f1_ci": [
+      0.2553516953933206,
+      0.27999528973599763
+    ],
+    "micro_f1_ci": [
+      0.3727405914099123,
+      0.3983880944407359
+    ],
+    "per_label_f1_ci": {
+      "anger": [
+        0.2879775847203591,
+        0.3488284135080855
+      ],
+      "disgust": [
+        0.1522921522921523,
+        0.20782044519776688
+      ],
+      "fear": [
+        0.20025016007494106,
+        0.2773789881454115
+      ],
+      "joy": [
+        0.705611106949958,
+        0.7409252988194968
+      ],
+      "sadness": [
+        0.262058647085643,
+        0.32075504028347146
+      ],
+      "surprise": [
+        0.08550023459775508,
+        0.16123146784398598
+      ],
+      "neutral": [
+        0.0,
+        0.0
+      ]
+    },
+    "meta": {
+      "n_train": 6838,
+      "n_test": 3163,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": 5,
+      "subsample_train": 6838,
+      "test_dataset": "sem_eval_2018_task_1"
+    }
+  },
+  {
+    "model": "logreg_tfidf",
+    "dataset": "go_emotions->sem_eval_2018_task_1",
+    "macro_f1": 0.27054094615859425,
+    "micro_f1": 0.33814432989690724,
+    "subset_accuracy": 0.2092949731267784,
+    "ece": 0.04171800025489074,
+    "train_seconds": 0.2886190563440323,
+    "predict_latency_ms": 0.008656067106492377,
+    "throughput": 115525.90659214764,
+    "model_size_mb": 1.0701618194580078,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "anger": 0.33967213114754097,
+      "disgust": 0.0782608695652174,
+      "fear": 0.3076923076923077,
+      "joy": 0.6544802867383512,
+      "sadness": 0.3295540438397581,
+      "surprise": 0.18412698412698414,
+      "neutral": 0.0
+    },
+    "per_label_support": {
+      "anger": 1101,
+      "disgust": 1099,
+      "fear": 485,
+      "joy": 1669,
+      "sadness": 1049,
+      "surprise": 170,
+      "neutral": 0
+    },
+    "macro_f1_ci": [
+      0.25751274145843195,
+      0.282920519412814
+    ],
+    "micro_f1_ci": [
+      0.32572589594081663,
+      0.3517127774817882
+    ],
+    "per_label_f1_ci": {
+      "anger": [
+        0.3075889064245472,
+        0.3726239944114727
+      ],
+      "disgust": [
+        0.05765506513707953,
+        0.09992665896970696
+      ],
+      "fear": [
+        0.2617417897861821,
+        0.3552865239839983
+      ],
+      "joy": [
+        0.6328113208308614,
+        0.6744395101861317
+      ],
+      "sadness": [
+        0.29740196067020797,
+        0.3621660465490098
+      ],
+      "surprise": [
+        0.12697619047619046,
+        0.24666883116883118
+      ],
+      "neutral": [
+        0.0,
+        0.0
+      ]
+    },
+    "meta": {
+      "n_train": 6838,
+      "n_test": 3163,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": 5,
+      "subsample_train": 6838,
+      "test_dataset": "sem_eval_2018_task_1"
+    }
+  },
+  {
+    "model": "linsvm_tfidf",
+    "dataset": "go_emotions->sem_eval_2018_task_1",
+    "macro_f1": 0.16826852640346046,
+    "micro_f1": 0.29255956342339945,
+    "subset_accuracy": 0.22605121719886184,
+    "ece": 0.12146753199330163,
+    "train_seconds": 0.4797593839466572,
+    "predict_latency_ms": 0.008056334234889535,
+    "throughput": 124125.93256984101,
+    "model_size_mb": 2.34938907623291,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "anger": 0.057692307692307696,
+      "disgust": 0.019801980198019802,
+      "fear": 0.2629757785467128,
+      "joy": 0.6567272727272727,
+      "sadness": 0.12633451957295375,
+      "surprise": 0.05434782608695652,
+      "neutral": 0.0
+    },
+    "per_label_support": {
+      "anger": 1101,
+      "disgust": 1099,
+      "fear": 485,
+      "joy": 1669,
+      "sadness": 1049,
+      "surprise": 170,
+      "neutral": 0
+    },
+    "macro_f1_ci": [
+      0.15776814875070266,
+      0.17970333712452063
+    ],
+    "micro_f1_ci": [
+      0.2783873380454914,
+      0.30738780887529116
+    ],
+    "per_label_f1_ci": {
+      "anger": [
+        0.03907464444528426,
+        0.077270564903746
+      ],
+      "disgust": [
+        0.009328358208955223,
+        0.03205745224214116
+      ],
+      "fear": [
+        0.21822929416564668,
+        0.31090215329891197
+      ],
+      "joy": [
+        0.6362599270507282,
+        0.676212383714212
+      ],
+      "sadness": [
+        0.10008433873175583,
+        0.15358391235285687
+      ],
+      "surprise": [
+        0.011559032622417116,
+        0.10584839996604699
+      ],
+      "neutral": [
+        0.0,
+        0.0
+      ]
+    },
+    "meta": {
+      "n_train": 6838,
+      "n_test": 3163,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": 5,
+      "subsample_train": 6838,
+      "test_dataset": "sem_eval_2018_task_1"
+    }
+  },
+  {
+    "model": "random_forest_tfidf",
+    "dataset": "go_emotions->sem_eval_2018_task_1",
+    "macro_f1": 0.15535935232491613,
+    "micro_f1": 0.22925842161647422,
+    "subset_accuracy": 0.1779955738223206,
+    "ece": 0.14835656729309496,
+    "train_seconds": 3.2233172096312046,
+    "predict_latency_ms": 0.1753503600988741,
+    "throughput": 5702.868242963026,
+    "model_size_mb": 272.4234266281128,
+    "cost_usd": null,
+    "device": "cpu",
+    "per_label_f1": {
+      "anger": 0.10282776349614396,
+      "disgust": 0.0018181818181818182,
+      "fear": 0.16642335766423358,
+      "joy": 0.5859969558599696,
+      "sadness": 0.11280214861235452,
+      "surprise": 0.11764705882352941,
+      "neutral": 0.0
+    },
+    "per_label_support": {
+      "anger": 1101,
+      "disgust": 1099,
+      "fear": 485,
+      "joy": 1669,
+      "sadness": 1049,
+      "surprise": 170,
+      "neutral": 0
+    },
+    "macro_f1_ci": [
+      0.1431401379728033,
+      0.16671436827821803
+    ],
+    "micro_f1_ci": [
+      0.2164942411395519,
+      0.24235800298196328
+    ],
+    "per_label_f1_ci": {
+      "anger": [
+        0.07852720035382574,
+        0.12766673830503616
+      ],
+      "disgust": [
+        0.0,
+        0.00561810915830376
+      ],
+      "fear": [
+        0.13127758408635817,
+        0.2023167485749561
+      ],
+      "joy": [
+        0.5624734457664881,
+        0.6081842453659796
+      ],
+      "sadness": [
+        0.08864855959329694,
+        0.13901025381323845
+      ],
+      "surprise": [
+        0.06153061224489797,
+        0.18000236966824643
+      ],
+      "neutral": [
+        0.0,
+        0.0
+      ]
+    },
+    "meta": {
+      "n_train": 6838,
+      "n_test": 3163,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": 5,
+      "subsample_train": 6838,
+      "test_dataset": "sem_eval_2018_task_1"
+    }
+  },
+  {
+    "model": "bilstm",
+    "dataset": "go_emotions->sem_eval_2018_task_1",
+    "macro_f1": 0.10282720650474875,
+    "micro_f1": 0.27110582639714625,
+    "subset_accuracy": 0.23427126146063865,
+    "ece": 0.18488256916439,
+    "train_seconds": 2.667714234441519,
+    "predict_latency_ms": 0.019028014937722527,
+    "throughput": 52554.089497666246,
+    "model_size_mb": 5.830044746398926,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "anger": 0.0285204991087344,
+      "disgust": 0.0,
+      "fear": 0.0,
+      "joy": 0.6686710763680096,
+      "sadness": 0.022598870056497175,
+      "surprise": 0.0,
+      "neutral": 0.0
+    },
+    "per_label_support": {
+      "anger": 1101,
+      "disgust": 1099,
+      "fear": 485,
+      "joy": 1669,
+      "sadness": 1049,
+      "surprise": 170,
+      "neutral": 0
+    },
+    "macro_f1_ci": [
+      0.09911770556283978,
+      0.10681498524514738
+    ],
+    "micro_f1_ci": [
+      0.2576715205807057,
+      0.2844906421492342
+    ],
+    "per_label_f1_ci": {
+      "anger": [
+        0.014718735401180832,
+        0.043786684477329876
+      ],
+      "disgust": [
+        0.0,
+        0.0
+      ],
+      "fear": [
+        0.0,
+        0.0
+      ],
+      "joy": [
+        0.6497225867724014,
+        0.6871129460336184
+      ],
+      "sadness": [
+        0.011570177636463324,
+        0.03777399438536619
+      ],
+      "surprise": [
+        0.0,
+        0.0
+      ],
+      "neutral": [
+        0.0,
+        0.0
+      ]
+    },
+    "meta": {
+      "n_train": 6838,
+      "n_test": 3163,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": 5,
+      "subsample_train": 6838,
+      "test_dataset": "sem_eval_2018_task_1"
+    }
+  },
+  {
+    "model": "hf_distilbert-base-uncased",
+    "dataset": "go_emotions->sem_eval_2018_task_1",
+    "macro_f1": 0.2659047959964053,
+    "micro_f1": 0.3531296487012244,
+    "subset_accuracy": 0.2503951944356623,
+    "ece": 0.20793561059139057,
+    "train_seconds": 21.32620592787862,
+    "predict_latency_ms": 0.2315505158946441,
+    "throughput": 4318.712036275496,
+    "model_size_mb": 255.46714687347412,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "anger": 0.3141818181818182,
+      "disgust": 0.07612456747404844,
+      "fear": 0.2578397212543554,
+      "joy": 0.7088517596871667,
+      "sadness": 0.2996845425867508,
+      "surprise": 0.20465116279069767,
+      "neutral": 0.0
+    },
+    "per_label_support": {
+      "anger": 1101,
+      "disgust": 1099,
+      "fear": 485,
+      "joy": 1669,
+      "sadness": 1049,
+      "surprise": 170,
+      "neutral": 0
+    },
+    "macro_f1_ci": [
+      0.25179817150371664,
+      0.2791663692091187
+    ],
+    "micro_f1_ci": [
+      0.33926416013411637,
+      0.36800833695518664
+    ],
+    "per_label_f1_ci": {
+      "anger": [
+        0.2848208916855741,
+        0.3473449208743326
+      ],
+      "disgust": [
+        0.05734616046598002,
+        0.09803013040985956
+      ],
+      "fear": [
+        0.20840760207190737,
+        0.30064304016468835
+      ],
+      "joy": [
+        0.6892008703599007,
+        0.7265939334823048
+      ],
+      "sadness": [
+        0.26792659670438845,
+        0.33205310057444204
+      ],
+      "surprise": [
+        0.13395534290271136,
+        0.26976928755998525
+      ],
+      "neutral": [
+        0.0,
+        0.0
+      ]
+    },
+    "meta": {
+      "n_train": 6838,
+      "n_test": 3163,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": 5,
+      "subsample_train": 6838,
+      "test_dataset": "sem_eval_2018_task_1"
+    }
+  },
+  {
+    "model": "hf_bert-base-uncased",
+    "dataset": "go_emotions->sem_eval_2018_task_1",
+    "macro_f1": 0.204623521611762,
+    "micro_f1": 0.2749605589362182,
+    "subset_accuracy": 0.20961112867530826,
+    "ece": 0.2535328676363543,
+    "train_seconds": 38.46823472902179,
+    "predict_latency_ms": 0.38957175007546363,
+    "throughput": 2566.921240583515,
+    "model_size_mb": 417.73978900909424,
+    "cost_usd": null,
+    "device": "cuda:0",
+    "per_label_f1": {
+      "anger": 0.21800947867298578,
+      "disgust": 0.05123674911660778,
+      "fear": 0.1814814814814815,
+      "joy": 0.6548069644208933,
+      "sadness": 0.2145850796311819,
+      "surprise": 0.11224489795918367,
+      "neutral": 0.0
+    },
+    "per_label_support": {
+      "anger": 1101,
+      "disgust": 1099,
+      "fear": 485,
+      "joy": 1669,
+      "sadness": 1049,
+      "surprise": 170,
+      "neutral": 0
+    },
+    "macro_f1_ci": [
+      0.19227117668150284,
+      0.21749934187277747
+    ],
+    "micro_f1_ci": [
+      0.26257369190408913,
+      0.28861915670068344
+    ],
+    "per_label_f1_ci": {
+      "anger": [
+        0.1866792556616937,
+        0.24921654893010822
+      ],
+      "disgust": [
+        0.03530372300598838,
+        0.06884529798309001
+      ],
+      "fear": [
+        0.13926080917962216,
+        0.22183462532299741
+      ],
+      "joy": [
+        0.6350772158740045,
+        0.6742466908905655
+      ],
+      "sadness": [
+        0.1848879946873911,
+        0.24480513550535843
+      ],
+      "surprise": [
+        0.05153978324081417,
+        0.17308526011560693
+      ],
+      "neutral": [
+        0.0,
+        0.0
+      ]
+    },
+    "meta": {
+      "n_train": 6838,
+      "n_test": 3163,
+      "n_labels": 7,
+      "labels": [
+        "anger",
+        "disgust",
+        "fear",
+        "joy",
+        "sadness",
+        "surprise",
+        "neutral"
+      ],
+      "threshold": 0.5,
+      "seed": 44,
+      "schema": "ekman6",
+      "features": "tfidf",
+      "epochs": 5,
+      "subsample_train": 6838,
+      "test_dataset": "sem_eval_2018_task_1"
+    }
+  }
+]
