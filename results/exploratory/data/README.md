@@ -1,7 +1,7 @@
 # Exploratory / superseded results (not used in the paper)
 
 Historical record. None of these files are a source for any table, figure, or number in
-the manuscript — the paper's sources all live one level up in `results/`. Kept for
+the manuscript — the paper's sources all live in `paper_final/data/`. Kept for
 provenance; all are regenerable via `scripts/run_experiment.py`.
 
 ## What's here, and why it's not in the paper

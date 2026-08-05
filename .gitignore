@@ -38,8 +38,9 @@ data/processed/*
 .mypy_cache/
 *.log
 # ...except the published GPU-server run logs, kept as result provenance.
-!results/server_logs/
-!results/server_logs/*.log
+# (Moved under results/exploratory/ in the paper_final vs exploratory reorg.)
+!results/exploratory/server_logs/
+!results/exploratory/server_logs/*.log
 
 # Reproducibility lockfile is fine to commit; this ignores stray local freezes
 # (intentionally NOT ignoring requirements.lock.txt)
