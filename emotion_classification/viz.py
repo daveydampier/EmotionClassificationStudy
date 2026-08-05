@@ -176,12 +176,17 @@ def save_all(scorecard: pd.DataFrame, per_emotion: pd.DataFrame, out_dir,
 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
+    # Two Pareto views — one per cost axis (training time and model size) — since the
+    # efficiency story spans both; `model_size_mb` falls back to the train-time view
+    # only if the column is absent.
     figs = {
-        "pareto": pareto_scatter(scorecard),
+        "pareto_train": pareto_scatter(scorecard, x="train_seconds"),
         "heatmap": per_emotion_heatmap(per_emotion),
         "violin": per_emotion_violin(per_emotion),
         "f1_vs_frequency": f1_vs_frequency(per_emotion),
     }
+    if "model_size_mb" in scorecard.columns:
+        figs["pareto_size"] = pareto_scatter(scorecard, x="model_size_mb")
     if scorecard["schema"].nunique() > 1:
         figs["granularity"] = granularity_bars(scorecard)
 

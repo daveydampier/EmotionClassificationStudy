@@ -12,7 +12,8 @@ transformers, across three transfer regimes:
 The story it shows: LogReg leads from GoEmotions at full *and* matched size and
 is far more stable (tiny error bar); the ordering flips only when the source
 corpus changes (Reverse). So transfer is corpus/direction-specific, not a size
-effect. Run after the M4/M5/M6 results are in ``results/``.
+effect. Reads from ``results/paper_final/data`` and writes
+``results/paper_final/figures/cross_dataset_transfer.png`` by default.
 
     python scripts/make_crossdataset_figure.py
 """
@@ -51,8 +52,8 @@ def macro6(path: Path, model: str) -> float:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--results-dir", default="results")
-    ap.add_argument("--out", default=None)
+    ap.add_argument("--results-dir", default="results/paper_final/data")
+    ap.add_argument("--out", default="results/paper_final/figures/cross_dataset_transfer.png")
     args = ap.parse_args()
     rd = Path(args.results_dir)
 
