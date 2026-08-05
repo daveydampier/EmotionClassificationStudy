@@ -4,9 +4,13 @@ A navigation guide to everything in `results/`. Every experiment writes a small
 family of files that share a **stem**; figures are named from the same stems. Once
 you can read a stem, you can find any number in the paper.
 
-- **`*.json` / `*.csv`** — the numbers (this folder).
-- **`figures/*.png`** — the plots.
+- **`*.json` / `*.csv`** — the numbers (this folder = the **paper's sources only**).
+- **`figures/*.png`** — the paper's plots (`figures/exploratory/` = archived plots).
 - **`server_logs/*.log`** — raw stdout from each GPU-server run (provenance/debugging).
+- **`exploratory/`** — archived runs **not used in the paper** (redundant classical
+  breakdowns, superseded 3-epoch per-schema transformers, `gpu_smoke`, `crosstier`).
+  See `exploratory/README.md`. So `all` / `bow` / `crosstier` and the per-schema 3-epoch
+  transformer stems below now live there, not in `results/` root.
 
 ---
 
