@@ -70,7 +70,7 @@ hyperparameters, energy as the cost axis, and paired significance tests?
 encoder plus linear head, or compressed transformer? Where do the frontiers cross?
 
 - Headline figure: three Pareto frontiers (one per route) on size and on energy axes,
-  with the reference-ceiling and LLM points plotted for context.
+  with the reference-ceiling and hosted-tier points plotted for context.
 - Supporting: iso-budget table at three size tiers (§2.4); per-emotion heatmap by route.
 - Success: frontier crossings, if any, are reported with CIs; each tier names a winner.
 
@@ -150,13 +150,28 @@ per route (marked *) to stay readable.
 **Reference ceiling**
 - BERT-base* (existing), RoBERTa-base, ModernBERT-base.
 
-**LLM tier** (Chapter 2 only; evaluated on test sets, never trained)
-- One open model on the H200: Qwen2.5-7B-Instruct, zero-shot and 5-shot.
-- One API model: Claude Haiku 4.5 (`claude-haiku-4-5-20251001`), zero-shot and 5-shot.
-- Recorded: macro/micro-F1, per-emotion F1, latency, and cost per 1,000 predictions
-  (API list price, or H200 energy for the open model). Prompts and few-shot examples are
-  fixed and committed. If a full test set would exceed a per-corpus dollar cap of USD 25,
-  evaluate on a stratified 2,000-example subsample and say so.
+**Hosted, no-training tier** (Chapters 2 and 3b only; evaluated on test sets, never trained)
+- One open LLM on the H200: Qwen2.5-7B-Instruct, zero-shot and 5-shot.
+- One API LLM: Claude Haiku 4.5 (`claude-haiku-4-5-20251001`), zero-shot and 5-shot.
+- One hosted decision model: **Jev** (TypeSafe AI), pinned to `jev-1.13.0` or the stable
+  version at evaluation time, with the version and evaluation date recorded. Jev is not
+  an LLM: it takes a block of text plus typed questions and returns typed answers with a
+  probability and a confidence score, all questions evaluated in parallel and in
+  isolation. Multi-label emotion is posed as one Noul ("is this statement true")
+  question per emotion in a single call, which is binary relevance, the same decision
+  rule every other model uses. Single-label corpora may additionally use the Choice
+  primitive. Zero-shot only; no fine-tuning or few-shot support exists. Jev's claims of
+  calibrated probabilities, low cost, and low latency map directly onto the scorecard's
+  ECE, cost, and latency axes, and it has no published text-classification evaluation,
+  so it enters as an untested data point, not as a route to lightweight.
+- Recorded for every hosted model: macro/micro-F1, per-emotion F1, ECE, end-to-end
+  latency (network round-trip included and stated as such), and cost per 1,000
+  predictions (API list price, or H200 energy for the open model). Prompts, question
+  templates, and few-shot examples are fixed and committed. If a full test set would
+  exceed a per-corpus dollar cap of USD 25, evaluate on a stratified 2,000-example
+  subsample and say so.
+- Hosted models have no local model size. They are plotted on the energy, latency, and
+  cost axes and appear in the iso-budget tables under "unlimited" size.
 
 ### 2.3 Protocol (applies to every run)
 
@@ -216,7 +231,9 @@ pairs gives per-emotion rater precision, recall, and F1, plus Krippendorff's alp
 emotion. The normalized model score is model F1 divided by rater F1 for that emotion.
 
 **Chapter 3b: calibration.** Reliability diagrams and ECE before/after temperature
-scaling for one representative per route, on GoEmotions native-27.
+scaling for one representative per route, on GoEmotions native-27, plus Jev, whose
+calibration claim is tested here. Temperature scaling is applied to Jev's returned
+probabilities exactly as to any other model's.
 
 **Chapter 3c: noise robustness.** Six perturbation types applied to the GoEmotions test
 set: character typos, adjacent-key swaps, casing changes, emoji insertion, slang and
@@ -230,7 +247,7 @@ one representative per route plus BERT-base. Curves
 reported for macro-F1 and separately for the rare-emotion subset (support below 100 in
 the test split).
 
-**Chapter 4: transfer matrix.** Every model of §2.2 (excluding the LLM tier) is trained on
+**Chapter 4: transfer matrix.** Every model of §2.2 (excluding the hosted tier) is trained on
 each corpus in Ekman-6 and evaluated on every other corpus under the shared-emotion rule,
 giving a 6x6 (or 7x7) matrix per model. Domain distance between every corpus pair is
 measured four ways: Jensen-Shannon divergence between unigram distributions over the
@@ -255,6 +272,10 @@ size, with (model, source, target) as the unit of analysis.
   against two naive rules: always-BERT and always-LogReg (each clipped to feasibility).
 - *Presentation.* The derived rubric is rendered as a decision tree keyed on the five
   profile dimensions. This is the artifact the advisor asked for.
+- *Hosted models.* Excluded from the framework's first version, because their
+  deployability differs in kind: a network dependency, and text leaving the premises.
+  If the hosted tier wins on cost or calibration in Chapter 2, a sixth boolean
+  dimension, "hosted allowed", is added, doubling the profile count to 256.
 
 ### 2.5 Repository changes
 
@@ -269,13 +290,13 @@ and the CLI already carry most of what is needed.
 | `metrics.py` | Paired bootstrap delta with Holm correction; shared-label macro-F1; rater-agreement metrics (per-emotion rater F1, Krippendorff's alpha). |
 | `models/embeddings.py` (new) | Frozen sentence-encoder + LogReg, and GloVe-average + LogReg. |
 | `models/compressed.py` (new) | Int8 dynamic quantization and magnitude-pruning wrappers around the HuggingFace model. |
-| `models/llm.py` (new) | Prompted classifier for the open model and the API model, with fixed prompts, few-shot examples, and cost accounting. |
+| `models/hosted.py` (new) | Prompted classifier for the open and API LLMs, and a Jev client that poses one Noul question per emotion per call; fixed templates, few-shot examples, version pinning, and cost accounting. |
 | `models/deep.py`, `models/classical.py` | Add TextCNN; add XGBoost. |
 | `scripts/` | `run_transfer_matrix.py`, `run_learning_curves.py`, `run_noise.py`, `make_perturbed_sets.py`, `make_framework.py` (derive + leave-one-corpus-out validate + render tree). |
 | `viz.py` | Route frontiers; transfer heatmap; F1-vs-human-F1 scatter; learning curves; degradation curves; reliability diagrams; regret chart; decision-tree render. |
 | `results/thesis/` (new) | Parallel to `paper_final/`, same stem convention, with new dataset prefixes `dair_`, `tweval_`, `isear_`, `meld_`, `ed_` and a file key README. |
 | `tests/` | One test module per new loader, metric, and model; CI stays network-free. |
-| `pyproject.toml` | New extras: `codecarbon`, `sentence-transformers`, `xgboost`, `nlpaug`, `krippendorff`, `optimum` or `torch.ao` for quantization, LLM client libraries. |
+| `pyproject.toml` | New extras: `codecarbon`, `sentence-transformers`, `xgboost`, `nlpaug`, `krippendorff`, `optimum` or `torch.ao` for quantization, LLM and TypeSafe client libraries. |
 
 Run scripts for the GPU server follow the existing `run_m*.sh` pattern, one per chapter.
 
@@ -291,8 +312,9 @@ possible follow-on and none is needed to answer the four research questions.
 
 **Fall 2026, unofficial (October to December): engineering and Chapter 1.**
 - October: five loaders and the rater loader; validation split, threshold tuning,
-  hyperparameter search, energy capture, paired tests; literature refresh.
-- November: the embeddings and LLM model modules, TextCNN, XGBoost, small transformers;
+  hyperparameter search, energy capture, paired tests; literature refresh; join the Jev
+  early-access waitlist.
+- November: the embeddings and hosted model modules, TextCNN, XGBoost, small transformers;
   Chapter 1 re-run on the H200 (seven-model core plus routes S and F); proposal draft
   built from this document.
 - December: proposal to the committee; Chapter 1 results written; buffer.
@@ -301,7 +323,7 @@ possible follow-on and none is needed to answer the four research questions.
 - January to February: in-domain runs on all corpora, all models, five seeds; cross-corpus
   evaluation; domain-distance features.
 - March: the compression module and route C arms, RoBERTa and ModernBERT ceilings, run
-  on all corpora and folded into Chapters 1 and 4; iso-budget analysis; LLM tier.
+  on all corpora and folded into Chapters 1 and 4; iso-budget analysis; hosted tier.
 - April to May: Chapters 2 and 4 results written; framework derived.
 
 **Summer 2027, official: mechanism, validation, manuscript.**
@@ -324,6 +346,7 @@ month its results land.
 | Threshold tuning changes the study's headline. | Reported as a finding. Chapter 1 keeps fixed-0.5 and tuned side by side. |
 | Ekman-6 harmonization loses signal (love to joy, guilt to sadness). | In-domain results stay native; every transfer cell states its shared-emotion count. |
 | CPU energy is an estimate on Windows. | Labeled as an estimate everywhere; iso-budget tiers lean on model size and GPU energy. |
-| LLM evaluation cost. | Per-corpus dollar cap with a stratified subsample fallback (§2.2). |
+| Hosted-tier evaluation cost. | Per-corpus dollar cap with a stratified subsample fallback (§2.2). Jev's list price makes a full GoEmotions test pass well under a dollar. |
+| Jev early access never arrives, or the hosted model changes under evaluation. | Waitlist joined in October, tier not needed until March. If access fails, the tier keeps the two LLMs and Chapter 2 loses one row. Version and evaluation date are recorded on every hosted-tier result. |
 | Scope creep. | Chapter 3 flexes; 3d learning curves are cut first, then 3c. Chapter 4 is never cut. |
 | Writing time squeezed by experiments. | Each chapter is written in the month its results land; the proposal is drafted from this document in November. |
