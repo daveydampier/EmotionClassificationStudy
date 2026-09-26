@@ -10,12 +10,19 @@ is *the cost of going lightweight*: what a small model actually sacrifices, and 
 Deep-learning and transformer models are built with **PyTorch** + the **HuggingFace** stack
 (`transformers`, `datasets`); classical models use **scikit-learn**.
 
-> **Status: complete.** Seven models across three tiers were run on GoEmotions
-> (native-27, Ekman-6, sentiment-3), with multi-seed and bootstrap uncertainty, a
-> cross-dataset transfer test (GoEmotions → SemEval-2018), and a transformer
-> training-budget check. All results and figures are committed under
-> [`results/`](results/) (see [`results/README.md`](results/README.md) for a file key).
-> For the engineering reference, see [README_DETAILED.md](README_DETAILED.md).
+> **Status: independent study complete (Aug 2026); continuing as a thesis.** Seven
+> models across three tiers were run on GoEmotions (native-27, Ekman-6, sentiment-3),
+> with multi-seed and bootstrap uncertainty, a cross-dataset transfer test
+> (GoEmotions → SemEval-2018), and a transformer training-budget check. All results and
+> figures are committed under [`results/`](results/) (see
+> [`results/README.md`](results/README.md) for a file key). For the engineering
+> reference, see [README_DETAILED.md](README_DETAILED.md).
+>
+> **Thesis (Spring–Summer 2027):** the work continues as a four-chapter thesis: a
+> rigor-fixed replication, three routes to lightweight compared at matched budget, the
+> mechanism of the rare-emotion penalty, and a multi-corpus transfer matrix feeding a
+> validated model-selection framework. The research design lives in
+> [`docs/superpowers/specs/2026-09-25-thesis-expansion-design.md`](docs/superpowers/specs/2026-09-25-thesis-expansion-design.md).
 
 ---
 
@@ -95,6 +102,8 @@ EmotionClassificationStudy/
 │       ├── classical.py      # NB / LogReg / LinearSVM / RandomForest (TF-IDF, BoW)
 │       ├── deep.py           # BiLSTM (PyTorch)
 │       └── transformer.py    # BERT / DistilBERT fine-tuning (HuggingFace)
+├── docs/
+│   └── superpowers/specs/    # research design specs (thesis expansion plan)
 ├── data/
 │   ├── raw/                  # downloaded datasets (git-ignored)
 │   └── processed/            # cleaned / harmonized data (git-ignored)
