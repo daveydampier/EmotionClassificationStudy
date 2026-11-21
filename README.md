@@ -118,7 +118,7 @@ EmotionClassificationStudy/
 │   └── make_figures.py       # CLI: turn persisted CSVs into PNG figures
 ├── results/                  # committed run outputs (CSV/JSON) + figures/ + README key
 ├── run_m2.sh, run_m3.sh      # GPU-server batch scripts (the runs behind results/)
-├── tests/                    # pytest suite (129 tests; 1 needs the network)
+├── tests/                    # pytest suite (151 tests; 1 needs the network)
 ├── .github/workflows/ci.yml  # CI: no-network tests on push / PR
 ├── pyproject.toml            # deps + extras + packaging + pytest config
 ├── requirements.lock.txt     # exact pins from `pip freeze` (reproducibility)

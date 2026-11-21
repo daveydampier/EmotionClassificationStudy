@@ -140,8 +140,9 @@ CWD: `PROJECT_ROOT`, `DATA_DIR`, `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`,
 - `load_goemotions(config="simplified")` — 27 emotions + neutral, Reddit.
 - `load_semeval2018(language="english")` — 11 labels, tweets (script-free mirror).
 - `load_brighter(...)` — stubbed (`NotImplementedError`; HF path TBD).
-- `LOADERS` — name → loader registry. `datasets` is imported lazily; loaders hit
-  the network on first use (HF cache thereafter).
+- Loaders are looked up by name through the corpus registry (`corpora.py`).
+  `datasets` is imported lazily; loaders hit the network on first use (HF cache
+  thereafter).
 
 ### `preprocessing.py`
 - `to_multihot(label_lists, label_names) -> ndarray`.
@@ -195,8 +196,10 @@ CWD: `PROJECT_ROOT`, `DATA_DIR`, `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`,
 - `set_seed(seed)` — seeds Python/NumPy/(torch if present).
 - `fit_and_predict(model, train, eval_sets, *, seed=42, meta=None) ->
   {name: PredictionRecord}` — seeds, times one fit, then predicts on every named
-  evaluation set (timing each). Each record's manifest carries the timings,
-  `size_mb()`, and the device.
+  evaluation set (timing each, in the order given). Each record's manifest carries
+  the timings, `size_mb()`, the device, and the model's hyperparameters.
+- `model_params(model) -> dict` — the hyperparameters a model was built with, as a
+  flat JSON-safe dict (`head.C`, `vectorizer.max_features`, `epochs`, ...).
 - `score(record, *, dataset_name=None, threshold=0.5, bootstrap=0, cost_usd=None,
   extra_meta=None) -> ScorecardRow` — predictive + calibration + per-emotion
   metrics from a record, in process or loaded from the cache (the result is
@@ -234,6 +237,12 @@ CWD: `PROJECT_ROOT`, `DATA_DIR`, `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`,
   (model, seed): one fit, predictions on every evaluation set, one scorecard row
   per scored set, and (with `predictions_dir`) the prediction cache. The training
   corpus's validation split is cached but not scored.
+- Configuration is checked before any corpus is loaded: unknown models, corpora or
+  schemas, malformed or repeated evaluation sets, mismatched label spaces, and two
+  fits that would write the same cache file all raise `ConfigError` up front.
+- `score_record(record, *, threshold=0.5, bootstrap=0) -> ScorecardRow` — rebuilds
+  the scorecard row for a cached record from its manifest alone. The pipeline
+  builds its own rows through it, so cached and original rows are identical.
 
 ### `results.py` (stdlib only)
 - `save_results(card, out_dir, name) -> {json, scorecard, per_emotion}` writes

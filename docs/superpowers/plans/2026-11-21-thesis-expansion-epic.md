@@ -132,7 +132,9 @@ written and tested locally on CPU.
   `energy_measured`); five-seed default; transformer loop brought to standard practice
   (batch 32, warmup and linear decay); a deterministic TF-IDF vocabulary cutoff (ties at
   the 50,000-term cap broken by a fixed rule, for example alphabetically), so the
-  classical tier's features are identical on every machine.
+  classical tier's features are identical on every machine; a configuration tag in the
+  prediction-cache key, so the search's several fits of one model can share a run
+  (today a run with two fits on one cache file is refused before training).
 - **Decided (spec §2.3, item 3):** the search selects on validation macro-F1 at
   validation-tuned thresholds, the same procedure for every model, since a fixed 0.5
   would penalize models with poorly scaled probabilities. The transformer recipe is
@@ -171,6 +173,10 @@ written and tested locally on CPU.
   and the before/after threshold figure.
 - **Done when:** every table of the independent study exists under the new protocol
   and every figure renders from committed CSVs alone.
+- **Check on the GPU:** each model now predicts several evaluation sets in a row, and
+  the first one absorbs any one-off warm-up. Measure whether that skews
+  `predict_latency_ms` for the first set, and if it does, add a warm-up pass before
+  timing.
 - **Depends on:** Plans 2 and 4.
 
 ### Plan 6: Transfer matrix (M, GPU)
