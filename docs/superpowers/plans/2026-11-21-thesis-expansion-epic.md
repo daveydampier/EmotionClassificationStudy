@@ -109,9 +109,20 @@ written and tested locally on CPU.
   `fit_and_predict()` and `score()` in `experiment.py`, eval-set fan-out in the CLI,
   the `results/thesis/` tree, and the per-seed subsampling fix.
 - **Done when:** the 62 existing tests pass unchanged; a scorecard recomputed from the
-  cache equals the in-process one exactly; a network-marked regression test reproduces
-  the deterministic classical rows of `go_native_final_scorecard.csv`.
+  cache equals the in-process one exactly; the new runner matches a verbatim copy of
+  the old one exactly; a network-marked regression test reproduces the classical rows
+  of `go_native_final_scorecard.csv` within 0.002 on the F1 axes and 0.005 on subset
+  accuracy (see the reproducibility finding below).
 - **Depends on:** nothing.
+- **Status:** built on branch `feature/pipeline-v2`. Task-level plan:
+  `docs/superpowers/plans/2026-11-21-pipeline-v2.md`.
+- **Reproducibility finding from the build.** The published classical rows do not
+  reproduce bit-for-bit on a second machine (up to 0.0005 on F1, 0.0024 on subset
+  accuracy). The cause: the TF-IDF vocabulary is capped at 50,000 terms, and on
+  GoEmotions that cut falls inside a block of 23,998 terms tied at a count of 2, with
+  room for 15,660. scikit-learn breaks those ties with an unstable sort, so the
+  rare-term tail of the vocabulary is machine-dependent. The fix changes the features,
+  so it is listed under Plan 2, not done here.
 
 ### Plan 2: Evaluation protocol (M, no GPU)
 - **Builds:** per-label threshold tuning on validation; temperature scaling; paired
@@ -119,7 +130,9 @@ written and tested locally on CPU.
   random search; CodeCarbon energy capture with a no-op fallback; new scorecard columns
   (`threshold_mode`, `ece_calibrated`, `train_energy_wh`, `infer_energy_wh_per_1k`,
   `energy_measured`); five-seed default; transformer loop brought to standard practice
-  (batch 32, warmup and linear decay).
+  (batch 32, warmup and linear decay); a deterministic TF-IDF vocabulary cutoff (ties at
+  the 50,000-term cap broken by a fixed rule, for example alphabetically), so the
+  classical tier's features are identical on every machine.
 - **Decided (spec §2.3, item 3):** the search selects on validation macro-F1 at
   validation-tuned thresholds, the same procedure for every model, since a fixed 0.5
   would penalize models with poorly scaled probabilities. The transformer recipe is
