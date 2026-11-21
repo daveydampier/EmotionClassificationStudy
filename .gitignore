@@ -54,3 +54,7 @@ Thumbs.db
 # Environment / secrets
 .env
 *.env
+
+# Cached per-example predictions: large and regenerable. Scorecards, CSVs and
+# figures under results/ stay committed; the cache is archived separately.
+/results/**/predictions/
