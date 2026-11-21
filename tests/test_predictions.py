@@ -74,3 +74,24 @@ def test_list_predictions_walks_the_tree(tmp_path):
     assert len(metas) == 2
     assert all(m["path"].endswith(".npz") for m in metas)
     assert all(m["model"] == "logreg_tfidf" for m in metas)
+
+
+def test_save_rejects_labels_that_are_not_multi_hot(tmp_path):
+    # y_true is stored as 0/1 bytes; a soft label would be truncated silently.
+    record = PredictionRecord(np.array([[0.5, 1.0]]), np.array([[0.4, 0.9]]), ["a", "b"])
+    with pytest.raises(ValueError, match="multi-hot"):
+        save_prediction(record, tmp_path / "rec.npz")
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_a_failed_save_leaves_nothing_behind(tmp_path):
+    record = _record()
+    record.meta["not_json"] = object()
+    with pytest.raises(TypeError):
+        save_prediction(record, tmp_path / "rec.npz")
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_prediction_path_rejects_a_name_with_no_safe_characters(tmp_path):
+    with pytest.raises(ValueError, match="file-safe"):
+        prediction_path(tmp_path, "???", "logreg_tfidf", 42, "go_emotions:test")

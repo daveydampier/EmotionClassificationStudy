@@ -75,6 +75,48 @@ def set_seed(seed: int = DEFAULT_SEED) -> None:
             torch.cuda.manual_seed_all(seed)
 
 
+_NOT_A_SCALAR = object()
+
+
+def _json_scalar(value):
+    """``value`` if JSON can store it as a scalar or a flat list of scalars."""
+    if value is None or isinstance(value, (str, bool, int, float)):
+        return value
+    if isinstance(value, (list, tuple)) and all(
+        item is None or isinstance(item, (str, bool, int, float)) for item in value
+    ):
+        return list(value)
+    return _NOT_A_SCALAR
+
+
+def model_params(model) -> dict:
+    """The hyperparameters ``model`` was built with, as a flat JSON-safe dict.
+
+    Public scalar attributes are taken as they are (``epochs``, ``lr``,
+    ``features``). An attribute that is a scikit-learn object, or wraps one as
+    ``.estimator``, contributes the scalars of its ``get_params()`` under a dotted
+    key: ``vectorizer.max_features``, ``head.C``. Private attributes and fitted
+    state (names ending in ``_``) are left out, so the result is the same before
+    and after training. Written into every prediction manifest, so a cached record
+    says exactly which configuration produced it.
+    """
+    out: dict = {}
+    for key, value in getattr(model, "__dict__", {}).items():
+        if key.startswith("_") or key.endswith("_"):
+            continue
+        scalar = _json_scalar(value)
+        if scalar is not _NOT_A_SCALAR:
+            out[key] = scalar
+            continue
+        source = value if hasattr(value, "get_params") else getattr(value, "estimator", None)
+        if hasattr(source, "get_params"):
+            for name, param in sorted(source.get_params(deep=True).items()):
+                scalar = _json_scalar(param)
+                if scalar is not _NOT_A_SCALAR:
+                    out[f"{key}.{name}"] = scalar
+    return out
+
+
 def fit_and_predict(
     model: EmotionModel,
     train: PreparedSplit,
@@ -88,9 +130,14 @@ def fit_and_predict(
     ``eval_sets`` maps a name (by convention ``"<corpus>:<split>"``) to a prepared
     split over the same labels as ``train``. Returns one record per set, in the
     order given. Every record carries the caller's ``meta`` plus what was measured:
-    ``model``, ``seed``, ``n_train``, ``train_seconds``, ``model_size_mb``,
-    ``device``, and per set ``eval_set``, ``n_eval``, ``predict_seconds``. Measured
-    values win over caller keys of the same name.
+    ``model``, ``params`` (see :func:`model_params`), ``seed``, ``n_train``,
+    ``train_seconds``, ``model_size_mb``, ``device``, and per set ``eval_set``,
+    ``n_eval``, ``predict_seconds``. Measured values win over caller keys of the
+    same name.
+
+    Sets are predicted in the order given, each timed on its own. The first one
+    includes any one-off warm-up cost, so list the set whose latency you report
+    first.
     """
     if not eval_sets:
         raise ValueError("eval_sets must name at least one evaluation set")
@@ -116,6 +163,7 @@ def fit_and_predict(
     run_meta = dict(meta or {})
     run_meta.update({
         "model": getattr(model, "name", model.__class__.__name__),
+        "params": model_params(model),
         "seed": int(seed),
         "n_train": len(train),
         "train_seconds": float(train_seconds),

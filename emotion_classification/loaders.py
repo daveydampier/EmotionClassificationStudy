@@ -119,11 +119,7 @@ def load_brighter(language: str = "eng") -> EmotionDataset:
     )
 
 
-# Registry so callers can select a loader by short name.
-# "brighter" is a future-work extension point (raises NotImplementedError); the
-# study's results come from go_emotions and sem_eval_2018_task_1 only.
-LOADERS = {
-    "go_emotions": load_goemotions,
-    "sem_eval_2018_task_1": load_semeval2018,
-    "brighter": load_brighter,
-}
+# Loaders are looked up by name through the corpus registry in
+# :mod:`emotion_classification.corpora`; register a new corpus there.
+# ``load_brighter`` is a future-work extension point and is deliberately not
+# registered: the study's results come from go_emotions and sem_eval_2018_task_1.

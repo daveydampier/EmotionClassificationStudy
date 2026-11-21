@@ -11,8 +11,7 @@ import csv
 import pytest
 
 from emotion_classification.config import PROJECT_ROOT
-from emotion_classification.experiment import score
-from emotion_classification.pipeline import RunConfig, run_pipeline
+from emotion_classification.pipeline import RunConfig, run_pipeline, score_record
 from emotion_classification.predictions import load_prediction
 
 PAPER_TABLE = PROJECT_ROOT / "results" / "paper_final" / "data" / "go_native_final_scorecard.csv"
@@ -61,12 +60,9 @@ def test_classical_rows_match_the_published_table(tmp_path):
     by_model = {row.model: row for row in result.card.rows}
     for path in result.prediction_paths:
         record = load_prediction(path)
-        if record.meta["eval_set"] == "go_emotions:validation":
+        if not record.meta["scored"]:
+            assert record.meta["eval_set"] == "go_emotions:validation"
             assert len(record) == 5426
             continue
         row = by_model[record.meta["model"]]
-        again = score(record, dataset_name="go_emotions", extra_meta={
-            key: row.meta[key] for key in
-            ("schema", "features", "epochs", "subsample_train", "test_dataset", "eval_set")
-        })
-        assert again.as_dict() == row.as_dict()
+        assert score_record(record).as_dict() == row.as_dict()

@@ -62,7 +62,16 @@ def slug(text: str) -> str:
 
 
 def prediction_path(root, run_name: str, model: str, seed: int, eval_set: str) -> Path:
-    """Where the record for (run, model, seed, evaluation set) lives under ``root``."""
+    """Where the record for (run, model, seed, evaluation set) lives under ``root``.
+
+    The key has no hyperparameter component: two different configurations of one
+    model in the same run would share a file. The pipeline refuses such a run
+    before training; give each configuration its own run name.
+    """
+    parts = {"run name": run_name, "model": model, "evaluation set": eval_set}
+    for what, value in parts.items():
+        if not slug(value):
+            raise ValueError(f"{what} {value!r} has no file-safe characters")
     name = f"{slug(model)}__seed{int(seed)}__{slug(eval_set)}.npz"
     return Path(root) / slug(run_name) / name
 
@@ -73,20 +82,30 @@ def save_prediction(record: PredictionRecord, path) -> Path:
     The file is written under a temporary name and renamed into place, so an
     interrupted batch never leaves a half-written record behind. ``y_prob`` keeps
     the dtype the model produced, which makes a cached score identical to the
-    in-process one.
+    in-process one. ``y_true`` is stored as 0/1 bytes, so it must be multi-hot,
+    and ``meta`` must be JSON-serialisable; both are checked before writing.
     """
+    # Everything that can fail is checked before a file is opened.
+    meta_json = json.dumps(record.meta)
+    if not np.isin(record.y_true, (0, 1)).all():
+        raise ValueError("y_true must be multi-hot (only 0 and 1) to be cached")
+
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
-    with open(tmp, "wb") as fh:
-        np.savez_compressed(
-            fh,
-            y_true=record.y_true.astype(np.uint8),
-            y_prob=record.y_prob,
-            label_names=np.asarray(record.label_names, dtype=str),
-            meta=np.asarray(json.dumps(record.meta)),
-        )
-    os.replace(tmp, path)
+    try:
+        with open(tmp, "wb") as fh:
+            np.savez_compressed(
+                fh,
+                y_true=record.y_true.astype(np.uint8),
+                y_prob=record.y_prob,
+                label_names=np.asarray(record.label_names, dtype=str),
+                meta=np.asarray(meta_json),
+            )
+        os.replace(tmp, path)
+    finally:
+        if tmp.exists():
+            tmp.unlink()
     return path
 
 

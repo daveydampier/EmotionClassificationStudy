@@ -14,11 +14,16 @@ from emotion_classification.models.registry import (
 pytest.importorskip("sklearn")
 
 
+STUDY_MODELS = {
+    "bilstm", "hf_bert-base-uncased", "hf_distilbert-base-uncased",
+    "linsvm", "logreg", "naive_bayes", "random_forest",
+}
+
+
 def test_registry_lists_the_study_models():
-    assert registry.model_names() == [
-        "bilstm", "hf_bert-base-uncased", "hf_distilbert-base-uncased",
-        "linsvm", "logreg", "naive_bayes", "random_forest",
-    ]
+    names = registry.model_names()
+    assert STUDY_MODELS <= set(names)
+    assert names == sorted(names)
 
 
 def test_routes_and_stochastic_flags():
@@ -26,7 +31,7 @@ def test_routes_and_stochastic_flags():
     assert get_model_spec("bilstm").route == "S"
     assert get_model_spec("hf_distilbert-base-uncased").route == "C"
     assert get_model_spec("hf_bert-base-uncased").route == "ceiling"
-    deterministic = {n for n in registry.model_names() if not get_model_spec(n).stochastic}
+    deterministic = {n for n in STUDY_MODELS if not get_model_spec(n).stochastic}
     assert deterministic == {"naive_bayes", "logreg", "linsvm"}
 
 

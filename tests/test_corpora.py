@@ -12,7 +12,9 @@ from emotion_classification.loaders import EmotionDataset
 
 
 def test_builtin_corpora_are_registered():
-    assert corpora.corpus_names() == ["go_emotions", "sem_eval_2018_task_1"]
+    names = corpora.corpus_names()
+    assert {"go_emotions", "sem_eval_2018_task_1"} <= set(names)
+    assert names == sorted(names)
     go = get_corpus("go_emotions")
     assert go.prefix == "go" and go.multi_label
     assert list(go.native_labels) == L.GOEMOTIONS

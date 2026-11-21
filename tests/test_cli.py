@@ -98,3 +98,10 @@ def test_main_reports_configuration_errors_cleanly(toy_corpora):
     with pytest.raises(SystemExit) as err:
         cli.main(["--dataset", "toy", "--eval-sets", "toy:dev", "--no-save"])
     assert "no split" in str(err.value)
+
+
+def test_main_rejects_a_misspelled_model_before_loading_data(toy_corpora):
+    with pytest.raises(SystemExit) as err:
+        cli.main(["--dataset", "toy", "--models", "logreg", "logregg", "--no-save"])
+    assert "unknown model 'logregg'" in str(err.value)
+    assert toy_corpora == {"toy": 0, "toy_b": 0}

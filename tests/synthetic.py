@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from emotion_classification.loaders import EmotionDataset, Example
 from emotion_classification.preprocessing import PreparedSplit
 
 LABELS = ["joy", "anger", "sadness", "fear"]
@@ -36,3 +37,16 @@ def synthetic_split(n: int, seed: int) -> PreparedSplit:
         row[active] = 1.0
         rows.append(row)
     return PreparedSplit(texts, np.vstack(rows), list(LABELS))
+
+
+def toy_dataset(name: str, seed: int, splits=("train", "validation", "test")) -> EmotionDataset:
+    """An in-memory corpus over ``LABELS`` with 160 / 40 / 60 rows, for registry tests."""
+    sizes = {"train": (160, seed), "validation": (40, seed + 1), "test": (60, seed + 2)}
+
+    def to_examples(split):
+        return [Example(text, [LABELS[j] for j in np.flatnonzero(row)])
+                for text, row in zip(split.texts, split.Y)]
+
+    return EmotionDataset(name, list(LABELS), {
+        split: to_examples(synthetic_split(*sizes[split])) for split in splits
+    })

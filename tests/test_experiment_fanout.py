@@ -3,20 +3,18 @@
 Tiny synthetic data and scikit-learn only (no network, no torch), so it runs in CI.
 """
 
-import time
+import json
 
 import numpy as np
 import pytest
 
 from emotion_classification.experiment import (
-    _detect_device, fit_and_predict, run_experiment, score, set_seed,
+    fit_and_predict, model_params, run_experiment, score,
 )
-from emotion_classification.metrics import (
-    bootstrap_f1_ci, bootstrap_per_label_f1_ci, evaluate, per_label_metrics,
-)
+from emotion_classification.models.registry import build_model, model_names
 from emotion_classification.predictions import load_prediction, save_prediction
 from emotion_classification.preprocessing import PreparedSplit
-from emotion_classification.scorecard import ScorecardRow
+from tests.legacy_runner import legacy_run_experiment, without_timings
 from tests.synthetic import LABELS, synthetic_split
 
 pytest.importorskip("sklearn")
@@ -24,81 +22,6 @@ pytest.importorskip("sklearn")
 from emotion_classification.models.classical import (  # noqa: E402
     LogisticReg, NaiveBayes, RandomForest,
 )
-
-TIMING_FIELDS = {"train_seconds", "predict_latency_ms", "throughput"}
-
-
-def _legacy_run_experiment(model, train, test, *, dataset_name, threshold=0.5, seed=42,
-                           cost_usd=None, bootstrap=0, extra_meta=None):
-    """Verbatim copy of ``run_experiment`` from before the runner was split.
-
-    Kept as the reference the new code path must match exactly (timings aside).
-    """
-    set_seed(seed)
-
-    t0 = time.perf_counter()
-    model.fit(train.texts, train.Y)
-    train_seconds = time.perf_counter() - t0
-
-    t1 = time.perf_counter()
-    y_prob = model.predict_proba(test.texts)
-    predict_seconds = time.perf_counter() - t1
-    latency_ms = (predict_seconds / max(len(test), 1)) * 1000.0
-    throughput = (len(test) / predict_seconds) if predict_seconds > 0 else 0.0
-
-    scores = evaluate(test.Y, y_prob, threshold=threshold)
-    per_label = per_label_metrics(test.Y, y_prob, test.label_names, threshold)
-    per_label_f1 = {name: m["f1"] for name, m in per_label.items()}
-    per_label_support = {name: m["support"] for name, m in per_label.items()}
-
-    macro_f1_ci = micro_f1_ci = None
-    per_label_f1_ci = {}
-    if bootstrap:
-        agg = bootstrap_f1_ci(test.Y, y_prob, threshold, n_boot=bootstrap, seed=seed)
-        macro_f1_ci = list(agg["macro"])
-        micro_f1_ci = list(agg["micro"])
-        per_label_f1_ci = {
-            name: list(bounds)
-            for name, bounds in bootstrap_per_label_f1_ci(
-                test.Y, y_prob, test.label_names, threshold, n_boot=bootstrap, seed=seed
-            ).items()
-        }
-
-    meta = {
-        "n_train": len(train),
-        "n_test": len(test),
-        "n_labels": test.n_labels,
-        "labels": test.label_names,
-        "threshold": threshold,
-        "seed": seed,
-    }
-    if extra_meta:
-        meta.update(extra_meta)
-
-    return ScorecardRow(
-        model=getattr(model, "name", model.__class__.__name__),
-        dataset=dataset_name,
-        macro_f1=scores["macro_f1"],
-        micro_f1=scores["micro_f1"],
-        subset_accuracy=scores["subset_accuracy"],
-        ece=scores["ece"],
-        train_seconds=train_seconds,
-        predict_latency_ms=latency_ms,
-        throughput=throughput,
-        model_size_mb=model.size_mb(),
-        cost_usd=cost_usd,
-        device=_detect_device(model),
-        per_label_f1=per_label_f1,
-        per_label_support=per_label_support,
-        macro_f1_ci=macro_f1_ci,
-        micro_f1_ci=micro_f1_ci,
-        per_label_f1_ci=per_label_f1_ci,
-        meta=meta,
-    )
-
-
-def _without_timings(row):
-    return {k: v for k, v in row.as_dict().items() if k not in TIMING_FIELDS}
 
 
 @pytest.mark.parametrize("make_model", [
@@ -110,9 +33,9 @@ def test_run_experiment_matches_the_legacy_runner_exactly(make_model):
     train, test = synthetic_split(160, seed=1), synthetic_split(80, seed=2)
     kwargs = dict(dataset_name="toy", seed=7, bootstrap=40,
                   extra_meta={"schema": "native", "features": "tfidf"})
-    legacy = _legacy_run_experiment(make_model(), train, test, **kwargs)
+    legacy = legacy_run_experiment(make_model(), train, test, **kwargs)
     new = run_experiment(make_model(), train, test, **kwargs)
-    assert _without_timings(new) == _without_timings(legacy)
+    assert without_timings(new) == without_timings(legacy)
 
 
 def test_fit_and_predict_returns_one_record_per_eval_set():
@@ -170,6 +93,41 @@ def test_fit_and_predict_rejects_a_different_label_space():
     other = PreparedSplit(["a b"], np.zeros((1, 2), dtype=np.float32), ["joy", "anger"])
     with pytest.raises(ValueError, match="labels"):
         fit_and_predict(LogisticReg(), train, {"other:test": other})
+
+
+def test_fit_and_predict_records_the_model_hyperparameters():
+    train = synthetic_split(60, seed=1)
+    record = fit_and_predict(LogisticReg(C=0.5), train, {"toy:test": train})["toy:test"]
+    params = record.meta["params"]
+    assert params["head.C"] == 0.5
+    assert params["features"] == "tfidf"
+    assert params["vectorizer.max_features"] == 50_000
+
+
+def test_model_params_are_flat_scalars_for_every_tier():
+    logreg = model_params(LogisticReg(C=2.0, features="bow"))
+    assert logreg["head.C"] == 2.0 and logreg["features"] == "bow"
+    assert logreg["vectorizer.ngram_range"] == [1, 2]       # tuples become lists
+    assert logreg["vectorizer.min_df"] == 2
+    forest = model_params(RandomForest(n_estimators=7))
+    assert forest["head.n_estimators"] == 7
+    # Torch models: constructor arguments only; fitted and private state is left out.
+    bilstm = model_params(build_model("bilstm", epochs=3))
+    assert bilstm["epochs"] == 3 and bilstm["hidden_dim"] == 128
+    assert not any(key.startswith("_") or key.endswith("_") for key in bilstm)
+    bert = model_params(build_model("hf_bert-base-uncased"))
+    assert bert["model_name"] == "bert-base-uncased" and bert["lr"] == 2e-5
+
+
+def test_model_params_survive_json_for_every_registered_model():
+    for name in model_names():
+        params = model_params(build_model(name))
+        assert params, name
+        assert json.loads(json.dumps(params)) == params
+
+
+def test_model_params_of_an_object_without_attributes_is_empty():
+    assert model_params(object()) == {}
 
 
 def test_score_from_cache_equals_score_in_process(tmp_path):
