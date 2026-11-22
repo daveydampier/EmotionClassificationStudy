@@ -91,19 +91,24 @@ EmotionClassificationStudy/
 │   ├── config.py             # canonical project paths
 │   ├── labels.py             # label schemas + cross-dataset harmonization
 │   ├── loaders.py            # normalized dataset loaders (GoEmotions, SemEval)
+│   ├── corpora.py            # corpus registry + label-schema resolution
 │   ├── preprocessing.py      # project native labels -> multi-hot target arrays
 │   ├── metrics.py            # predictive + calibration (ECE) + bootstrap CIs
 │   ├── scorecard.py          # deployment scorecard: rows + [0,1] normalization
-│   ├── experiment.py         # seed + time + score a model into a scorecard row
+│   ├── experiment.py         # fit_and_predict + score (run_experiment wraps both)
+│   ├── predictions.py        # prediction cache: per-example probabilities (.npz)
+│   ├── pipeline.py           # train once, fan out to many evaluation sets
+│   ├── errors.py             # ConfigError
 │   ├── results.py            # persist/load scorecards (CSV/JSON) + multi-seed summary
 │   ├── viz.py                # the figures (Pareto, heatmap, violin, F1-vs-frequency)
 │   └── models/               # one interface, three tiers
 │       ├── base.py           # EmotionModel protocol (fit/predict_proba/size_mb)
+│       ├── registry.py       # model registry: short name -> builder, route, stochastic
 │       ├── classical.py      # NB / LogReg / LinearSVM / RandomForest (TF-IDF, BoW)
 │       ├── deep.py           # BiLSTM (PyTorch)
 │       └── transformer.py    # BERT / DistilBERT fine-tuning (HuggingFace)
 ├── docs/
-│   └── superpowers/specs/    # research design specs (thesis expansion plan)
+│   └── superpowers/          # thesis design spec (specs/) + implementation plans (plans/)
 ├── data/
 │   ├── raw/                  # downloaded datasets (git-ignored)
 │   └── processed/            # cleaned / harmonized data (git-ignored)
@@ -113,7 +118,7 @@ EmotionClassificationStudy/
 │   └── make_figures.py       # CLI: turn persisted CSVs into PNG figures
 ├── results/                  # committed run outputs (CSV/JSON) + figures/ + README key
 ├── run_m2.sh, run_m3.sh      # GPU-server batch scripts (the runs behind results/)
-├── tests/                    # pytest suite (62 tests)
+├── tests/                    # pytest suite (151 tests; 1 needs the network)
 ├── .github/workflows/ci.yml  # CI: no-network tests on push / PR
 ├── pyproject.toml            # deps + extras + packaging + pytest config
 ├── requirements.lock.txt     # exact pins from `pip freeze` (reproducibility)
@@ -153,12 +158,28 @@ transformer training-budget check, and `--test-dataset sem_eval_2018_task_1` (wi
 results are `run_m2.sh` / `run_m3.sh`. See [README_DETAILED.md](README_DETAILED.md) for
 the full flag reference and typical workflows.
 
+Each model is trained once per seed and then predicts on every evaluation set
+named with `--eval-sets` (`<corpus>:<split>`), so one run can score the in-domain
+test split and another corpus without retraining:
+
+```bash
+python scripts/run_experiment.py --models logreg --schema ekman6 \
+    --eval-sets go_emotions:test sem_eval_2018_task_1:test \
+    --out-dir results/thesis/transfer --run-name go_ekman6_logreg
+```
+
+The per-example probabilities are cached under `<out-dir>/predictions/<run-name>/`
+(git-ignored), including the training corpus's validation split, so thresholds,
+calibration, and significance tests can be recomputed later from disk. See
+[`results/thesis/README.md`](results/thesis/README.md).
+
 Each run prints a **raw scorecard** (macro/micro-F1, subset accuracy, ECE, train
 seconds, per-sample latency, throughput, model size MB) and, for >1 model, a
-**normalized** table where 1.0 is best on every axis (lower-is-better axes inverted) —
-the input to the Pareto plots. To add a model, implement the `EmotionModel` interface
-(`emotion_classification/models/base.py`) and register it in
-`scripts/run_experiment.py`; metrics, timing, and the scorecard come for free.
+**normalized** table per evaluation set where 1.0 is best on every axis
+(lower-is-better axes inverted) — the input to the Pareto plots. To add a model,
+implement the `EmotionModel` interface (`emotion_classification/models/base.py`) and
+register it in `emotion_classification/models/registry.py`; metrics, timing, and the
+scorecard come for free.
 
 ---
 

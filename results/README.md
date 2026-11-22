@@ -1,12 +1,14 @@
 # Results
 
-Two top-level trees:
+Three top-level trees:
 
 ```
 results/
 ├── paper_final/          Everything used in the paper
 │   ├── data/             CSV/JSON sources  →  see data/README.md (the full file key)
 │   └── figures/          The 10 paper figures
+├── thesis/               Thesis expansion runs  →  see thesis/README.md
+│   └── <batch>/          scorecards + predictions/ (git-ignored)
 └── exploratory/          Archived — NOT used in the paper
     ├── data/             Redundant / superseded runs  →  see data/README.md
     ├── figures/          Archived plots  →  see figures/README.md

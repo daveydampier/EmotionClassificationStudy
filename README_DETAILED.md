@@ -62,14 +62,19 @@ emotion_classification/       # main package
 ├── config.py                 # canonical filesystem paths
 ├── labels.py                 # label schemas + cross-dataset harmonization maps
 ├── loaders.py                # HF dataset loaders -> EmotionDataset
+├── corpora.py                # corpus registry + label-schema resolution
 ├── preprocessing.py          # project labels -> multi-hot PreparedSplit; class frequency
 ├── metrics.py                # predictive + calibration + per-emotion metrics
 ├── scorecard.py              # ScorecardRow + Scorecard (normalization, markdown)
-├── experiment.py             # seed + time + score a model -> ScorecardRow
+├── experiment.py             # fit_and_predict + score -> ScorecardRow
+├── predictions.py            # prediction cache: per-example probabilities (.npz)
+├── pipeline.py               # train once, fan out to many evaluation sets
+├── errors.py                 # ConfigError
 ├── results.py                # persist/load scorecards (CSV/JSON)
 ├── viz.py                    # the five figures (matplotlib/seaborn)
 └── models/
     ├── base.py               # EmotionModel protocol + BaseEmotionModel
+    ├── registry.py           # model registry: short name -> builder, route, stochastic
     ├── classical.py          # NB / LogReg / LinearSVM / RandomForest (BoW/TF-IDF)
     ├── deep.py               # BiLSTM (PyTorch)
     └── transformer.py        # BERT/RoBERTa fine-tuning (HuggingFace)
@@ -135,8 +140,9 @@ CWD: `PROJECT_ROOT`, `DATA_DIR`, `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`,
 - `load_goemotions(config="simplified")` — 27 emotions + neutral, Reddit.
 - `load_semeval2018(language="english")` — 11 labels, tweets (script-free mirror).
 - `load_brighter(...)` — stubbed (`NotImplementedError`; HF path TBD).
-- `LOADERS` — name → loader registry. `datasets` is imported lazily; loaders hit
-  the network on first use (HF cache thereafter).
+- Loaders are looked up by name through the corpus registry (`corpora.py`).
+  `datasets` is imported lazily; loaders hit the network on first use (HF cache
+  thereafter).
 
 ### `preprocessing.py`
 - `to_multihot(label_lists, label_names) -> ndarray`.
@@ -188,14 +194,55 @@ CWD: `PROJECT_ROOT`, `DATA_DIR`, `RAW_DATA_DIR`, `PROCESSED_DATA_DIR`,
 
 ### `experiment.py`
 - `set_seed(seed)` — seeds Python/NumPy/(torch if present).
+- `fit_and_predict(model, train, eval_sets, *, seed=42, meta=None) ->
+  {name: PredictionRecord}` — seeds, times one fit, then predicts on every named
+  evaluation set (timing each, in the order given). Each record's manifest carries
+  the timings, `size_mb()`, the device, and the model's hyperparameters.
+- `model_params(model) -> dict` — the hyperparameters a model was built with, as a
+  flat JSON-safe dict (`head.C`, `vectorizer.max_features`, `epochs`, ...).
+- `score(record, *, dataset_name=None, threshold=0.5, bootstrap=0, cost_usd=None,
+  extra_meta=None) -> ScorecardRow` — predictive + calibration + per-emotion
+  metrics from a record, in process or loaded from the cache (the result is
+  identical). With `bootstrap > 0`, macro/micro + per-label F1 CIs.
 - `run_experiment(model, train, test, *, dataset_name, threshold=0.5, seed=42,
-  cost_usd=None, bootstrap=0, extra_meta=None) -> ScorecardRow` — seeds, times fit,
-  times inference (→ per-sample latency + throughput), scores predictive +
-  calibration + per-emotion, measures `size_mb()`, records the device, and (when
-  `bootstrap > 0`) computes macro/micro + per-label F1 CIs.
+  cost_usd=None, bootstrap=0, extra_meta=None) -> ScorecardRow` — the one-call
+  form: `fit_and_predict` on a single set, then `score`.
 - `_detect_device(model)` → `"cpu"` / `"cuda:0"` (reads a torch model's
   parameters; classical models report CPU). Makes the CPU/GPU timing-fairness
   caveat visible in every row.
+
+### `predictions.py` (numpy + stdlib)
+- `PredictionRecord(y_true, y_prob, label_names, meta)` — the per-example
+  probabilities of one model on one evaluation set, with a manifest.
+- `save_prediction(record, path)` / `load_prediction(path)` — one compressed
+  `.npz` per record; `y_prob` round-trips bit-for-bit.
+- `prediction_path(root, run_name, model, seed, eval_set)`,
+  `read_meta(path)`, `list_predictions(root)`.
+
+### `corpora.py`
+- `CorpusSpec` + `CORPORA` — one entry per corpus: loader, native labels, Ekman
+  and sentiment maps, results-stem prefix, multi-label flag.
+- `resolve_schema(corpus, schema) -> (label_names, projector)`.
+- `register(spec)`, `get_corpus(name)`, `corpus_names()`.
+
+### `models/registry.py`
+- `ModelSpec` + `MODELS` — one entry per model: builder, route (`S`, `F`, `C`,
+  `ceiling`, `hosted`), whether training is stochastic.
+- `build_model(name, *, features="tfidf", epochs=None, **params)`; any
+  `hf_<checkpoint>` resolves to a transformer.
+
+### `pipeline.py`
+- `RunConfig` — models, training corpus, schema, evaluation sets, seeds, limits.
+- `run_pipeline(cfg, log=None) -> RunResult(card, prediction_paths)` — for each
+  (model, seed): one fit, predictions on every evaluation set, one scorecard row
+  per scored set, and (with `predictions_dir`) the prediction cache. The training
+  corpus's validation split is cached but not scored.
+- Configuration is checked before any corpus is loaded: unknown models, corpora or
+  schemas, malformed or repeated evaluation sets, mismatched label spaces, and two
+  fits that would write the same cache file all raise `ConfigError` up front.
+- `score_record(record, *, threshold=0.5, bootstrap=0) -> ScorecardRow` — rebuilds
+  the scorecard row for a cached record from its manifest alone. The pipeline
+  builds its own rows through it, so cached and original rows are identical.
 
 ### `results.py` (stdlib only)
 - `save_results(card, out_dir, name) -> {json, scorecard, per_emotion}` writes
@@ -233,17 +280,24 @@ Runs one or more models on a dataset+schema, prints a scorecard, and persists it
 | Flag | Default | Meaning |
 |---|---|---|
 | `--models` | `logreg` | `naive_bayes`, `logreg`, `linsvm`, `random_forest`, `bilstm`, `hf_<name>` |
-| `--dataset` | `go_emotions` | any key in `loaders.LOADERS` |
+| `--dataset` | `go_emotions` | training corpus: any name in `corpora.CORPORA` |
 | `--schema` | `native` | `native`, `ekman6`, `sentiment3` |
 | `--features` | `tfidf` | `tfidf`, `bow` (classical tier) |
 | `--train-split` / `--test-split` | `train` / `test` | dataset split names |
-| `--limit-train` / `--limit-test` | none | cap rows (fast smoke runs) |
+| `--eval-sets` | `<dataset>:<test-split>` | evaluation sets to score, as `<corpus>:<split>`; one fit predicts on all |
+| `--test-dataset` | none | shorthand for `--eval-sets <corpus>:<test-split>` |
+| `--val-split` | `validation` | training-corpus split cached (unscored) for tuning; `none` turns it off |
+| `--limit-train` | none | cap training rows (fast smoke runs) |
+| `--limit-test` / `--limit-eval` | none | cap the rows of every evaluation set |
+| `--subsample-train` | none | random training subsample, redrawn per seed |
 | `--seed` | `42` | RNG seed |
 | `--seeds` | none | run each model across several seeds → mean ± std summary (overrides `--seed`) |
+| `--epochs` | model default | training epochs for the deep/transformer tiers |
 | `--bootstrap` | `0` | bootstrap resamples for test-set F1 CIs (e.g. `1000`) |
-| `--out-dir` | `results` | where CSV/JSON are written |
+| `--out-dir` | `results` | where CSV/JSON are written (thesis batches: `results/thesis/<batch>`) |
 | `--run-name` | `<dataset>_<schema>_<features>` | output basename |
-| `--no-save` | off | skip writing results |
+| `--no-save` | off | write nothing |
+| `--no-predictions` | off | write the scorecard files but not the prediction cache |
 
 ### `scripts/make_figures.py`
 Turns a run's persisted CSVs into PNGs (no models re-run).
@@ -311,7 +365,12 @@ inverse of latency, reported explicitly as a named RQ1 efficiency metric.
   figures consume (`f1_low`/`f1_high` blank unless bootstrapped).
 
 A multi-seed run (`--seeds`) also writes **`<name>_summary.csv`** (per-model
-`<axis>_mean` / `<axis>_std`). `results/` is git-ignored (outputs are regenerable).
+`<axis>_mean` / `<axis>_std`).
+
+Unless `--no-predictions` is given, a run also writes its **prediction cache** to
+`<out-dir>/predictions/<name>/<model>__seed<seed>__<corpus>-<split>.npz`: `y_true`,
+`y_prob`, label names, and a manifest per (model, seed, evaluation set). Scorecard
+files under `results/` are committed; `predictions/` folders are git-ignored.
 
 ---
 
@@ -357,15 +416,15 @@ save_results(Scorecard([ScorecardRow(**r) for r in rows]), "results", "combined"
 
 **Add a classical model:** subclass `_VectorizedClassifier` in `classical.py`
 with any scikit-learn estimator exposing `predict_proba`, set a `name`, and
-register a short name in `run_experiment.py`'s `CLASSICAL_BUILDERS`.
+register a `ModelSpec` for it in `models/registry.py`.
 
 **Add any model tier:** implement the four `EmotionModel` methods
-(`fit`, `predict_proba`, `predict`, `size_mb`); metrics, timing, device
-detection, and the scorecard come for free via `run_experiment`.
+(`fit`, `predict_proba`, `predict`, `size_mb`) and register a `ModelSpec`;
+metrics, timing, device detection, the scorecard, and the prediction cache come
+for free via the pipeline.
 
-**Add a dataset:** write a loader returning an `EmotionDataset`, register it in
-`loaders.LOADERS`, and add a projector (or reuse `native`) in
-`run_experiment.resolve_schema`.
+**Add a dataset:** write a loader returning an `EmotionDataset` and register a
+`CorpusSpec` for it in `corpora.py` with its native labels and Ekman map.
 
 ---
 
